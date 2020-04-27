@@ -383,7 +383,7 @@ def main():
         default=False,
         type=bool,
         help="""Remove named servers in addition to stopping them.
-            This is for use in temporary-user cases such as Binderhub.""",
+            This is useful for a BinderHub that uses authentication and named servers.""",
     )
     define(
         'concurrency',
