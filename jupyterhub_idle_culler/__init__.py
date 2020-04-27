@@ -86,7 +86,13 @@ def format_td(td):
 
 @coroutine
 def cull_idle(
-    url, api_token, inactive_limit, cull_users=False, max_age=0, concurrency=10
+    url,
+    api_token,
+    inactive_limit,
+    cull_users=False,
+    remove_named_servers=False,
+    max_age=0,
+    concurrency=10
 ):
     """Shutdown idle single-user servers
 
@@ -208,16 +214,25 @@ def cull_idle(
             )
             return False
 
+        body = None
         if server_name:
             # culling a named server
             delete_url = url + "/users/%s/servers/%s" % (
                 quote(user['name']),
                 quote(server['name']),
             )
+            if remove_named_servers:
+                body = json.dumps({"remove": True})
         else:
             delete_url = url + '/users/%s/server' % quote(user['name'])
 
-        req = HTTPRequest(url=delete_url, method='DELETE', headers=auth_header)
+        req = HTTPRequest(
+            url=delete_url,
+            method='DELETE',
+            headers=auth_header,
+            body=body,
+            allow_nonstandard_methods=True
+        )
         resp = yield fetch(req)
         if resp.code == 202:
             app_log.warning("Server %s is slow to stop", log_name)
@@ -364,6 +379,13 @@ def main():
                 This is for use in temporary-user cases such as tmpnb.""",
     )
     define(
+        'remove_named_servers',
+        default=False,
+        type=bool,
+        help="""Remove named servers in addition to stopping them.
+            This is for use in temporary-user cases such as Binderhub.""",
+    )
+    define(
         'concurrency',
         type=int,
         default=10,
@@ -395,6 +417,7 @@ def main():
         api_token=api_token,
         inactive_limit=options.timeout,
         cull_users=options.cull_users,
+        remove_named_servers=options.remove_named_servers,
         max_age=options.max_age,
         concurrency=options.concurrency,
     )
