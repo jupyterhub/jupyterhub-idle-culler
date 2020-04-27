@@ -8,7 +8,8 @@ setup(
     long_description=open('README.md').read(),
     entry_points={
         'console_scripts': [
-            'cull_idle_servers.py = jupyterhub_idle_culler:main'
+            'cull_idle_servers.py = jupyterhub_idle_culler:main',
+            'jupyterhub-idle-culler = jupyterhub_idle_culler:main'
         ]
     },
     install_requires=[
