@@ -338,25 +338,34 @@ def main():
         default=os.environ.get('JUPYTERHUB_API_URL'),
         help="The JupyterHub API URL",
     )
-    define('timeout', default=600, help="The idle timeout (in seconds)")
+    define(
+        'timeout',
+        type=int,
+        default=600,
+        help="The idle timeout (in seconds)"
+    )
     define(
         'cull_every',
+        type=int,
         default=0,
         help="The interval (in seconds) for checking for idle servers to cull",
     )
     define(
         'max_age',
+        type=int,
         default=0,
         help="The maximum age (in seconds) of servers that should be culled even if they are active",
     )
     define(
         'cull_users',
+        type=bool,
         default=False,
         help="""Cull users in addition to servers.
                 This is for use in temporary-user cases such as tmpnb.""",
     )
     define(
         'concurrency',
+        type=int,
         default=10,
         help="""Limit the number of concurrent requests made to the Hub.
 
