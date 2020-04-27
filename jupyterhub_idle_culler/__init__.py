@@ -332,7 +332,7 @@ def cull_idle(
                 app_log.debug("Finished culling %s", name)
 
 
-if __name__ == '__main__':
+def main():
     define(
         'url',
         default=os.environ.get('JUPYTERHUB_API_URL'),
@@ -399,3 +399,6 @@ if __name__ == '__main__':
         loop.start()
     except KeyboardInterrupt:
         pass
+
+if __name__ == '__main__':
+    main()
