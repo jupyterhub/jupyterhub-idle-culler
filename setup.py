@@ -5,8 +5,7 @@ setup(
     version='0.1',
     packages=find_packages(),
     license='3-BSD',
-    long_description=open('README.md').read(),
-    long_description_content_type='text/markdown',
+    long_description=open('README.rst').read(),
     entry_points={
         'console_scripts': [
             'cull_idle_servers.py = jupyterhub_idle_culler:main',
