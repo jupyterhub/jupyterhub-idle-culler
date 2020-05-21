@@ -23,7 +23,7 @@ Service to the `c.JupyterHub.services` list:
             'admin': True,
             'command': [
                 sys.executable,
-                '-m', 'jupyterhub-idle-culler,
+                '-m', 'jupyterhub-idle-culler',
                 '--timeout=3600'
             ],
         }
