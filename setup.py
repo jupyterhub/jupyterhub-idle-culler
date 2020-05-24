@@ -15,5 +15,6 @@ setup(
     install_requires=[
         'tornado',
         'python-dateutil'
-    ]
+    ],
+    include_package_data=True
 )
