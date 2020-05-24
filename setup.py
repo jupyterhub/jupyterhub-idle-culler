@@ -6,6 +6,9 @@ setup(
     packages=find_packages(),
     license='3-BSD',
     long_description=open('README.rst').read(),
+    author="Jupyter Development Team",
+    author_email="jupyter@googlegroups.com",
+    url="https://jupyter.org",
     entry_points={
         'console_scripts': [
             'cull_idle_servers.py = jupyterhub_idle_culler:main',
@@ -15,6 +18,5 @@ setup(
     install_requires=[
         'tornado',
         'python-dateutil'
-    ],
-#    include_package_data=True
+    ]
 )
