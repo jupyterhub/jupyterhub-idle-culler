@@ -5,7 +5,6 @@ JupyterHub Idle Culler Service
 ``jupyterhub-idle-culler`` provides a JupyterHub service to cull and
 shut down idle notebook servers and users on a JupyterHub deployment.
 
-
 Setup
 =====
 
@@ -49,3 +48,29 @@ variable. Then start ``jupyterhub-idle-culler`` manually
 
     export JUPYTERHUB_API_TOKEN=$(jupyterhub token)
     python3 -m jupyterhub-idle-culler[--timeout=900] [--url=http://localhost:8081/hub/api]
+
+The command line interface also gives a quick overview of the different options for configuration.
+
+.. code:: bash
+
+	  --concurrency                    Limit the number of concurrent requests made
+									   to the Hub.                  Deleting a lot
+									   of users at the same time can slow down the
+									   Hub,                 so limit the number of
+									   API requests we have outstanding at any
+									   given time.                  (default 10)
+	  --cull-every                     The interval (in seconds) for checking for
+									   idle servers to cull (default 0)
+	  --cull-users                     Cull users in addition to servers.
+									   This is for use in temporary-user cases such
+									   as tmpnb. (default False)
+	  --max-age                        The maximum age (in seconds) of servers that
+									   should be culled even if they are active
+									   (default 0)
+	  --remove-named-servers           Remove named servers in addition to stopping
+									   them.             This is useful for a
+									   BinderHub that uses authentication and named
+									   servers. (default False)
+	  --timeout                        The idle timeout (in seconds) (default 600)
+	  --url                            The JupyterHub API URL
+
