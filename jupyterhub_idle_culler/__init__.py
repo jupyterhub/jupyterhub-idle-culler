@@ -31,6 +31,8 @@ users and servers, you should add this script to the services list
 twice, just with different ``name``s, different values, and one with
 the ``--cull-users`` option.
 """
+
+import ssl
 import json
 import os
 from datetime import datetime
@@ -84,6 +86,18 @@ def format_td(td):
     return "{h:02}:{m:02}:{seconds:02}".format(h=h, m=m, seconds=seconds)
 
 
+def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname=True):
+    """Setup context for starting an https server or making requests over ssl.
+    """
+    if not keyfile or not certfile:
+        return None
+    purpose = ssl.Purpose.SERVER_AUTH if verify else ssl.Purpose.CLIENT_AUTH
+    ssl_context = ssl.create_default_context(purpose, cafile=cafile)
+    ssl_context.load_default_certs(purpose)
+    ssl_context.load_cert_chain(certfile, keyfile)
+    ssl_context.check_hostname = check_hostname
+    return ssl_context
+
 @coroutine
 def cull_idle(
     url,
@@ -92,7 +106,9 @@ def cull_idle(
     cull_users=False,
     remove_named_servers=False,
     max_age=0,
-    concurrency=10
+    concurrency=10,
+    ssl_enabled=False,
+    internal_certs_location='',
 ):
     """Shutdown idle single-user servers
 
@@ -101,6 +117,19 @@ def cull_idle(
     auth_header = {'Authorization': 'token %s' % api_token}
     req = HTTPRequest(url=url + '/users', headers=auth_header)
     now = datetime.now(timezone.utc)
+
+    if ssl_enabled:
+        ssl_context = make_ssl_context(
+            f'{internal_certs_location}/hub-internal/hub-internal.key',
+            f'{internal_certs_location}/hub-internal/hub-internal.crt',
+            f'{internal_certs_location}/hub-ca/hub-ca.crt'
+        )
+
+        app_log.debug("ssl_enabled is Enabled: %s", ssl_enabled)
+        app_log.debug("internal_certs_location is %s", internal_certs_location)
+        AsyncHTTPClient.configure(None, defaults={"ssl_options": ssl_context})
+
+
     client = AsyncHTTPClient()
 
     if concurrency:
@@ -399,6 +428,18 @@ def main():
                 so limit the number of API requests we have outstanding at any given time.
                 """,
     )
+    define(
+        'ssl_enabled',
+        type=bool,
+        default=False,
+        help="Whether the Jupyter API endpoint has TLS enabled",
+    )
+    define(
+        'internal_certs_location',
+        type=str,
+        default="internal-ssl",
+        help="The location of generated internal-ssl certificates (only needed if ssl_enabled=True)",
+   )
 
     parse_command_line()
     if not options.cull_every:
@@ -424,6 +465,8 @@ def main():
         remove_named_servers=options.remove_named_servers,
         max_age=options.max_age,
         concurrency=options.concurrency,
+        ssl_enabled=options.ssl_enabled,
+        internal_certs_location=options.internal_certs_location,
     )
     # schedule first cull immediately
     # because PeriodicCallback doesn't start until the end of the first interval
