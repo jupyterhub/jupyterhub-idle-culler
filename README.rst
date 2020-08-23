@@ -3,7 +3,7 @@ JupyterHub Idle Culler Service
 ==============================
 
 ``jupyterhub-idle-culler`` provides a JupyterHub service to identify and shut down idle or long-running Jupyter Notebook servers.
-The exact actions performed are dependent on the used spawner for the Jupyter Notebook server (e.g. the default `LocalProcessSpawner <https://jupyterhub.readthedocs.io/en/stable/api/spawner.html#localprocessspawner>`_, `kubespawner <https://github.com/jupyterhub/kubespawner>`_, or `dockerspawner <https://github.com/jupyterhub/dockerspawner>`_.
+The exact actions performed are dependent on the used spawner for the Jupyter Notebook server (e.g. the default `LocalProcessSpawner <https://jupyterhub.readthedocs.io/en/stable/api/spawner.html#localprocessspawner>`_, `kubespawner <https://github.com/jupyterhub/kubespawner>`_, or `dockerspawner <https://github.com/jupyterhub/dockerspawner>`_).
 In addition, if explicitly requested, all users whose Jupyter Notebook servers have been shut down this way are deleted as JupyterHub users from the internal database. This neither affects the authentication method which continues to allow those users to log in nor does it delete persisted user data (e.g. stored in docker volumes for dockerspawner or in persisted volumes for kubespawner).
 
 Setup
