@@ -81,7 +81,7 @@ Caveats
 1. last_activity is not updated with high frequency, so cull timeout should be
    greater than the sum of:
 
-   * single-user websocket ping interval (default: 30s)
+   * single-user websocket ping interval (default: 30 seconds)
    * ``JupyterHub.last_activity_interval`` (default: 5 minutes)
 
 
