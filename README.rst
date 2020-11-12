@@ -74,3 +74,18 @@ The command line interface also gives a quick overview of the different options 
                                        servers. (default False)
       --timeout                        The idle timeout (in seconds) (default 600)
       --url                            The JupyterHub API URL
+
+Caveats
+=======
+
+1. last_activity is not updated with high frequency, so cull timeout should be
+   greater than the sum of:
+
+   * single-user websocket ping interval (default: 30s)
+   * ``JupyterHub.last_activity_interval`` (default: 5 minutes)
+
+
+2. The same ``--timeout`` and ``--max-age`` values are used to cull
+   users and users' servers.  If you want a different value for users and servers,
+   you should add this script to the services list twice, just with different
+   ``name``s, different values, and one with the ``--cull-users`` option.

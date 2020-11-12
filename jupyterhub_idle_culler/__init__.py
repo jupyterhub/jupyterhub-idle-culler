@@ -1,35 +1,6 @@
 #!/usr/bin/env python3
-"""script to monitor and cull idle single-user servers
-
-Caveats:
-
-last_activity is not updated with high frequency,
-so cull timeout should be greater than the sum of:
-
-- single-user websocket ping interval (default: 30s)
-- JupyterHub.last_activity_interval (default: 5 minutes)
-
-You can run this as a service managed by JupyterHub with this in your config::
-
-
-    c.JupyterHub.services = [
-        {
-            'name': 'cull-idle',
-            'admin': True,
-            'command': [sys.executable, 'cull_idle_servers.py', '--timeout=3600'],
-        }
-    ]
-
-Or run it manually by generating an API token and storing it in `JUPYTERHUB_API_TOKEN`:
-
-    export JUPYTERHUB_API_TOKEN=$(jupyterhub token)
-    python3 cull_idle_servers.py [--timeout=900] [--url=http://localhost:8081/hub/api]
-
-This script uses the same ``--timeout`` and ``--max-age`` values for
-culling users and users' servers.  If you want a different value for
-users and servers, you should add this script to the services list
-twice, just with different ``name``s, different values, and one with
-the ``--cull-users`` option.
+"""
+Monitor & Cull idle single-user servers and users
 """
 
 import ssl
