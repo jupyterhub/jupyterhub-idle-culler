@@ -9,6 +9,13 @@ In addition, if explicitly requested, all users whose Jupyter Notebook servers h
 Setup
 =====
 
+Installation
+------------
+
+.. code:: sh
+
+    pip install jupyterhub-idle-culler
+
 As a hub managed service
 ------------------------
 
