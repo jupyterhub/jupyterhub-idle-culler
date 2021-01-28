@@ -58,8 +58,7 @@ def format_td(td):
 
 
 def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname=True):
-    """Setup context for starting an https server or making requests over ssl.
-    """
+    """Setup context for starting an https server or making requests over ssl."""
     if not keyfile or not certfile:
         return None
     purpose = ssl.Purpose.SERVER_AUTH if verify else ssl.Purpose.CLIENT_AUTH
@@ -68,6 +67,7 @@ def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname
     ssl_context.load_cert_chain(certfile, keyfile)
     ssl_context.check_hostname = check_hostname
     return ssl_context
+
 
 @coroutine
 def cull_idle(
@@ -79,27 +79,26 @@ def cull_idle(
     max_age=0,
     concurrency=10,
     ssl_enabled=False,
-    internal_certs_location='',
+    internal_certs_location="",
 ):
     """Shutdown idle single-user servers
 
     If cull_users, inactive *users* will be deleted as well.
     """
-    auth_header = {'Authorization': 'token %s' % api_token}
-    req = HTTPRequest(url=url + '/users', headers=auth_header)
+    auth_header = {"Authorization": "token %s" % api_token}
+    req = HTTPRequest(url=url + "/users", headers=auth_header)
     now = datetime.now(timezone.utc)
 
     if ssl_enabled:
         ssl_context = make_ssl_context(
-            f'{internal_certs_location}/hub-internal/hub-internal.key',
-            f'{internal_certs_location}/hub-internal/hub-internal.crt',
-            f'{internal_certs_location}/hub-ca/hub-ca.crt'
+            f"{internal_certs_location}/hub-internal/hub-internal.key",
+            f"{internal_certs_location}/hub-internal/hub-internal.crt",
+            f"{internal_certs_location}/hub-ca/hub-ca.crt",
         )
 
         app_log.debug("ssl_enabled is Enabled: %s", ssl_enabled)
         app_log.debug("internal_certs_location is %s", internal_certs_location)
         AsyncHTTPClient.configure(None, defaults={"ssl_options": ssl_context})
-
 
     client = AsyncHTTPClient()
 
@@ -119,7 +118,7 @@ def cull_idle(
         fetch = client.fetch
 
     resp = yield fetch(req)
-    users = json.loads(resp.body.decode('utf8', 'replace'))
+    users = json.loads(resp.body.decode("utf8", "replace"))
     futures = []
 
     @coroutine
@@ -131,12 +130,12 @@ def cull_idle(
         Returns True if server is now stopped (user removable),
         False otherwise.
         """
-        log_name = user['name']
+        log_name = user["name"]
         if server_name:
-            log_name = '%s/%s' % (user['name'], server_name)
-        if server.get('pending'):
+            log_name = "%s/%s" % (user["name"], server_name)
+        if server.get("pending"):
             app_log.warning(
-                "Not culling server %s with pending %s", log_name, server['pending']
+                "Not culling server %s with pending %s", log_name, server["pending"]
             )
             return False
 
@@ -147,22 +146,22 @@ def cull_idle(
         # events and are not ready shouldn't be in the model,
         # but let's check just to be safe.
 
-        if not server.get('ready', bool(server['url'])):
+        if not server.get("ready", bool(server["url"])):
             app_log.warning(
                 "Not culling not-ready not-pending server %s: %s", log_name, server
             )
             return False
 
-        if server.get('started'):
-            age = now - parse_date(server['started'])
+        if server.get("started"):
+            age = now - parse_date(server["started"])
         else:
             # started may be undefined on jupyterhub < 0.9
             age = None
 
         # check last activity
         # last_activity can be None in 0.9
-        if server['last_activity']:
-            inactive = now - parse_date(server['last_activity'])
+        if server["last_activity"]:
+            inactive = now - parse_date(server["last_activity"])
         else:
             # no activity yet, use start date
             # last_activity may be None with jupyterhub 0.9,
@@ -222,20 +221,20 @@ def cull_idle(
             # server we have to pass an additional option in the body of our
             # DELETE request.
             delete_url = url + "/users/%s/servers/%s" % (
-                quote(user['name']),
-                quote(server['name']),
+                quote(user["name"]),
+                quote(server["name"]),
             )
             if remove_named_servers:
                 body = json.dumps({"remove": True})
         else:
-            delete_url = url + '/users/%s/server' % quote(user['name'])
+            delete_url = url + "/users/%s/server" % quote(user["name"])
 
         req = HTTPRequest(
             url=delete_url,
-            method='DELETE',
+            method="DELETE",
             headers=auth_header,
             body=body,
-            allow_nonstandard_methods=True
+            allow_nonstandard_methods=True,
         )
         resp = yield fetch(req)
         if resp.code == 202:
@@ -256,19 +255,19 @@ def cull_idle(
         # Hub doesn't allow deleting users with running servers.
         # jupyterhub 0.9 always provides a 'servers' model.
         # 0.8 only does this when named servers are enabled.
-        if 'servers' in user:
-            servers = user['servers']
+        if "servers" in user:
+            servers = user["servers"]
         else:
             # jupyterhub < 0.9 without named servers enabled.
             # create servers dict with one entry for the default server
             # from the user model.
             # only if the server is running.
             servers = {}
-            if user['server']:
-                servers[''] = {
-                    'last_activity': user['last_activity'],
-                    'pending': user['pending'],
-                    'url': user['server'],
+            if user["server"]:
+                servers[""] = {
+                    "last_activity": user["last_activity"],
+                    "pending": user["pending"],
+                    "url": user["server"],
                 }
         server_futures = [
             handle_server(user, server_name, server, max_age, inactive_limit)
@@ -282,22 +281,22 @@ def cull_idle(
         if still_alive:
             app_log.debug(
                 "Not culling user %s with %i servers still alive",
-                user['name'],
+                user["name"],
                 still_alive,
             )
             return False
 
         should_cull = False
-        if user.get('created'):
-            age = now - parse_date(user['created'])
+        if user.get("created"):
+            age = now - parse_date(user["created"])
         else:
             # created may be undefined on jupyterhub < 0.9
             age = None
 
         # check last activity
         # last_activity can be None in 0.9
-        if user['last_activity']:
-            inactive = now - parse_date(user['last_activity'])
+        if user["last_activity"]:
+            inactive = now - parse_date(user["last_activity"])
         else:
             # no activity yet, use start date
             # last_activity may be None with jupyterhub 0.9,
@@ -308,7 +307,7 @@ def cull_idle(
             inactive is not None and inactive.total_seconds() >= inactive_limit
         )
         if should_cull:
-            app_log.info("Culling user %s (inactive for %s)", user['name'], inactive)
+            app_log.info("Culling user %s (inactive for %s)", user["name"], inactive)
 
         if max_age and not should_cull:
             # only check created if max_age is specified
@@ -317,7 +316,7 @@ def cull_idle(
             if age is not None and age.total_seconds() >= max_age:
                 app_log.info(
                     "Culling user %s (age: %s, inactive for %s)",
-                    user['name'],
+                    user["name"],
                     format_td(age),
                     format_td(inactive),
                 )
@@ -326,20 +325,20 @@ def cull_idle(
         if not should_cull:
             app_log.debug(
                 "Not culling user %s (created: %s, last active: %s)",
-                user['name'],
+                user["name"],
                 format_td(age),
                 format_td(inactive),
             )
             return False
 
         req = HTTPRequest(
-            url=url + '/users/%s' % user['name'], method='DELETE', headers=auth_header
+            url=url + "/users/%s" % user["name"], method="DELETE", headers=auth_header
         )
         yield fetch(req)
         return True
 
     for user in users:
-        futures.append((user['name'], handle_user(user)))
+        futures.append((user["name"], handle_user(user)))
 
     for (name, f) in futures:
         try:
@@ -353,44 +352,39 @@ def cull_idle(
 
 def main():
     define(
-        'url',
-        default=os.environ.get('JUPYTERHUB_API_URL'),
+        "url",
+        default=os.environ.get("JUPYTERHUB_API_URL"),
         help="The JupyterHub API URL",
     )
+    define("timeout", type=int, default=600, help="The idle timeout (in seconds)")
     define(
-        'timeout',
-        type=int,
-        default=600,
-        help="The idle timeout (in seconds)"
-    )
-    define(
-        'cull_every',
+        "cull_every",
         type=int,
         default=0,
         help="The interval (in seconds) for checking for idle servers to cull",
     )
     define(
-        'max_age',
+        "max_age",
         type=int,
         default=0,
         help="The maximum age (in seconds) of servers that should be culled even if they are active",
     )
     define(
-        'cull_users',
+        "cull_users",
         type=bool,
         default=False,
         help="""Cull users in addition to servers.
                 This is for use in temporary-user cases such as tmpnb.""",
     )
     define(
-        'remove_named_servers',
+        "remove_named_servers",
         default=False,
         type=bool,
         help="""Remove named servers in addition to stopping them.
             This is useful for a BinderHub that uses authentication and named servers.""",
     )
     define(
-        'concurrency',
+        "concurrency",
         type=int,
         default=10,
         help="""Limit the number of concurrent requests made to the Hub.
@@ -400,22 +394,22 @@ def main():
                 """,
     )
     define(
-        'ssl_enabled',
+        "ssl_enabled",
         type=bool,
         default=False,
         help="Whether the Jupyter API endpoint has TLS enabled",
     )
     define(
-        'internal_certs_location',
+        "internal_certs_location",
         type=str,
         default="internal-ssl",
         help="The location of generated internal-ssl certificates (only needed if ssl_enabled=True)",
-   )
+    )
 
     parse_command_line()
     if not options.cull_every:
         options.cull_every = options.timeout // 2
-    api_token = os.environ['JUPYTERHUB_API_TOKEN']
+    api_token = os.environ["JUPYTERHUB_API_TOKEN"]
 
     try:
         AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
@@ -450,5 +444,6 @@ def main():
     except KeyboardInterrupt:
         pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
