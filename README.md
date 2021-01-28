@@ -20,7 +20,7 @@ pip install jupyterhub-idle-culler
 
 ### As a hub managed service
 
-In ``jupyterhub_config.py``, add the following dictionary for the idle-culler
+In `jupyterhub_config.py`, add the following dictionary for the idle-culler
 Service to the `c.JupyterHub.services` list:
 
 ```python
@@ -87,10 +87,10 @@ The command line interface also gives a quick overview of the different options 
 1. last_activity is not updated with high frequency, so cull timeout should be
    greater than the sum of:
 
-   * single-user websocket ping interval (default: 30 seconds)
-   * `JupyterHub.last_activity_interval` (default: 5 minutes)
+   - single-user websocket ping interval (default: 30 seconds)
+   - `JupyterHub.last_activity_interval` (default: 5 minutes)
 
 2. The same `--timeout` and `--max-age` values are used to cull
-   users and users' servers.  If you want a different value for users and servers,
+   users and users' servers. If you want a different value for users and servers,
    you should add this script to the services list twice, just with different
    `name`s, different values, and one with the `--cull-users` option.

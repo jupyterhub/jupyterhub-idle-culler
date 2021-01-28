@@ -26,7 +26,7 @@ jobs:
       - name: Run tests
         run: |
           flake8
-  
+
   # FIXME: Add pytest tests!
   # pytest:
   #   name: Run pytests
