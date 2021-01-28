@@ -25,7 +25,7 @@ jobs:
 
       - name: Run tests
         run: |
-          flake8
+          flake8 --ignore=E501
   
   # FIXME: Add pytest tests!
   # pytest:

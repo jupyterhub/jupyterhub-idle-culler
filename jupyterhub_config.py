@@ -2,7 +2,7 @@ import sys
 
 # run cull-idle as a service
 
-c.JupyterHub.services = [
+c.JupyterHub.services = [  # noqa: F821
     {
         "name": "cull-idle",
         "admin": True,
