@@ -1,0 +1,57 @@
+# This is a GitHub workflow defining a set of jobs with a set of steps.
+# ref: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions
+#
+name: Test
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  flake8:
+    name: Run flake8
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install flake8
+        run: |
+          pip install --no-cache-dir flake8
+
+      - name: Run tests
+        run: |
+          flake8
+  
+  # FIXME: Add pytest tests!
+  # pytest:
+  #   name: Run pytests
+  #   runs-on: ubuntu-20.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - python-version: 3.6
+  #         - python-version: 3.7
+  #         - python-version: 3.8
+  #         - python-version: 3.9
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-python@v2
+  #       with:
+  #         python-version: "${{ matrix.python-version}}"
+
+  #     - name: Install Python dependencies
+  #       run: |
+  #         pip install pytest
+  #         pip install .
+
+  #     - name: Run tests
+  #       continue-on-error: ${{ matrix.accept-failure == true }}
+  #       run: |
+  #         pytest --verbose --maxfail=2 --color=yes
