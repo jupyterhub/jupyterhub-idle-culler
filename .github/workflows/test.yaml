@@ -17,31 +17,30 @@ jobs:
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.0
 
-  # FIXME: Add pytest tests!
-  # pytest:
-  #   name: Run pytests
-  #   runs-on: ubuntu-20.04
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include:
-  #         - python-version: 3.6
-  #         - python-version: 3.7
-  #         - python-version: 3.8
-  #         - python-version: 3.9
+  pytest:
+    name: "Run pytests (FIXME: No tests)"
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: 3.6
+          - python-version: 3.7
+          - python-version: 3.8
+          - python-version: 3.9
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-python@v2
-  #       with:
-  #         python-version: "${{ matrix.python-version}}"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python-version}}"
 
-  #     - name: Install Python dependencies
-  #       run: |
-  #         pip install pytest
-  #         pip install .
+      - name: Install Python dependencies
+        run: |
+          pip install pytest
+          pip install .
 
-  #     - name: Run tests
-  #       continue-on-error: ${{ matrix.accept-failure == true }}
-  #       run: |
-  #         pytest --verbose --maxfail=2 --color=yes
+      # - name: Run tests
+      #   continue-on-error: ${{ matrix.accept-failure == true }}
+      #   run: |
+      #     pytest --verbose --maxfail=2 --color=yes
