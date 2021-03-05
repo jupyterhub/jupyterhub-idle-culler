@@ -3,15 +3,13 @@
 This changelog is maintained manually with assistance of
 [`github-activity`](https://github.com/executablebooks/github-activity).
 
-## [1.1]
-
-### [1.1.0] - 2021-03-05
+## [1.1] - 2021-03-05
 
 #### Enhancements made
 
 - jupyterhub_idle_culler: Support SSL when internal_ssl is enabled on jupyterhub [#11](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/11) ([@chancez](https://github.com/chancez))
 
-## Maintenance and upkeep improvements
+#### Maintenance and upkeep improvements
 
 - General maintenance: readme badges, autoformatting, flake8 test, .gitignore, changelog [#20](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/20) ([@consideRatio](https://github.com/consideRatio))
 
