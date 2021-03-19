@@ -8,6 +8,7 @@ import json
 import os
 from datetime import datetime
 from datetime import timezone
+from distutils.version import LooseVersion as V
 from functools import partial
 
 try:
@@ -23,6 +24,8 @@ from tornado.log import app_log
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.options import define, options, parse_command_line
+
+STATE_FILTER_MIN_VERSION = V("1.3.0")
 
 
 def parse_date(date_string):
@@ -85,10 +88,6 @@ def cull_idle(
 
     If cull_users, inactive *users* will be deleted as well.
     """
-    auth_header = {"Authorization": "token %s" % api_token}
-    req = HTTPRequest(url=url + "/users", headers=auth_header)
-    now = datetime.now(timezone.utc)
-
     if ssl_enabled:
         ssl_context = make_ssl_context(
             f"{internal_certs_location}/hub-internal/hub-internal.key",
@@ -117,8 +116,25 @@ def cull_idle(
     else:
         fetch = client.fetch
 
+    # Starting with jupyterhub 1.3.0 the users can be filtered in the server
+    # using the `state` filter parameter. "ready" means all users who have any
+    # ready servers (running, not pending).
+    auth_header = {"Authorization": "token %s" % api_token}
+    resp = yield fetch(HTTPRequest(url=url + "/info", headers=auth_header))
+    info = json.loads(resp.body.decode("utf8", "replace"))
+    state_filter = V(info["version"]) >= STATE_FILTER_MIN_VERSION
+
+    req = HTTPRequest(
+        url=url + "/users%s" % ("?state=ready" if state_filter else ""),
+        headers=auth_header,
+    )
+    now = datetime.now(timezone.utc)
+
     resp = yield fetch(req)
     users = json.loads(resp.body.decode("utf8", "replace"))
+    app_log.debug(
+        "Got %d users%s", len(users), (" with ready servers" if state_filter else "")
+    )
     futures = []
 
     @coroutine
@@ -339,6 +355,17 @@ def cull_idle(
 
     for user in users:
         futures.append((user["name"], handle_user(user)))
+
+    # If we filtered users by state=ready then we did not get back any which
+    # are inactive, so if we're also culling users get the set of users which
+    # are inactive and see if they should be culled as well.
+    if state_filter and cull_users:
+        req = HTTPRequest(url=url + "/users?state=inactive", headers=auth_header)
+        resp = yield fetch(req)
+        users = json.loads(resp.body.decode("utf8", "replace"))
+        app_log.debug("Got %d users with inactive servers", len(users))
+        for user in users:
+            futures.append((user["name"], handle_user(user)))
 
     for (name, f) in futures:
         try:
