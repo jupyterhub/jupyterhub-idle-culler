@@ -10,6 +10,7 @@ from datetime import datetime
 from datetime import timezone
 from distutils.version import LooseVersion as V
 from functools import partial
+from textwrap import dedent
 
 try:
     from urllib.parse import quote
@@ -381,56 +382,98 @@ def main():
     define(
         "url",
         default=os.environ.get("JUPYTERHUB_API_URL"),
-        help="The JupyterHub API URL",
+        help=dedent(
+            """
+            The JupyterHub API URL.
+            """
+        ).strip(),
     )
-    define("timeout", type=int, default=600, help="The idle timeout (in seconds)")
+    define(
+        "timeout",
+        type=int,
+        default=600,
+        help=dedent(
+            """
+            The idle timeout (in seconds).
+            """
+        ).strip(),
+    )
     define(
         "cull_every",
         type=int,
         default=0,
-        help="The interval (in seconds) for checking for idle servers to cull",
+        help=dedent(
+            """
+            The interval (in seconds) for checking for idle servers to cull.
+            """
+        ).strip(),
     )
     define(
         "max_age",
         type=int,
         default=0,
-        help="The maximum age (in seconds) of servers that should be culled even if they are active",
+        help=dedent(
+            """
+            The maximum age (in seconds) of servers that should be culled even if they are active.
+            """
+        ).strip(),
     )
     define(
         "cull_users",
         type=bool,
         default=False,
-        help="""Cull users in addition to servers.
-                This is for use in temporary-user cases such as tmpnb.""",
+        help=dedent(
+            """
+            Cull users in addition to servers.
+
+            This is for use in temporary-user cases such as tmpnb.
+            """
+        ).strip(),
     )
     define(
         "remove_named_servers",
         default=False,
         type=bool,
-        help="""Remove named servers in addition to stopping them.
-            This is useful for a BinderHub that uses authentication and named servers.""",
+        help=dedent(
+            """
+            Remove named servers in addition to stopping them.
+
+            This is useful for a BinderHub that uses authentication and named servers.
+            """
+        ).strip(),
     )
     define(
         "concurrency",
         type=int,
         default=10,
-        help="""Limit the number of concurrent requests made to the Hub.
+        help=dedent(
+            """
+            Limit the number of concurrent requests made to the Hub.
 
-                Deleting a lot of users at the same time can slow down the Hub,
-                so limit the number of API requests we have outstanding at any given time.
-                """,
+            Deleting a lot of users at the same time can slow down the Hub,
+            so limit the number of API requests we have outstanding at any given time.
+            """
+        ).strip(),
     )
     define(
         "ssl_enabled",
         type=bool,
         default=False,
-        help="Whether the Jupyter API endpoint has TLS enabled",
+        help=dedent(
+            """
+            Whether the Jupyter API endpoint has TLS enabled.
+            """
+        ).strip(),
     )
     define(
         "internal_certs_location",
         type=str,
         default="internal-ssl",
-        help="The location of generated internal-ssl certificates (only needed if ssl_enabled=True)",
+        help=dedent(
+            """
+            The location of generated internal-ssl certificates (only needed with --ssl-enabled=true).
+            """
+        ).strip(),
     )
 
     parse_command_line()

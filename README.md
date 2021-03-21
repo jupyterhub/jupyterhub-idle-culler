@@ -61,25 +61,29 @@ The command line interface also gives a quick overview of the different options 
 
 ```
   --concurrency                    Limit the number of concurrent requests made
-                                   to the Hub.                  Deleting a lot
-                                   of users at the same time can slow down the
-                                   Hub,                 so limit the number of
-                                   API requests we have outstanding at any
-                                   given time.                  (default 10)
+                                   to the Hub.  Deleting a lot of users at the
+                                   same time can slow down the Hub, so limit
+                                   the number of API requests we have
+                                   outstanding at any given time. (default 10)
   --cull-every                     The interval (in seconds) for checking for
-                                   idle servers to cull (default 0)
-  --cull-users                     Cull users in addition to servers.
-                                   This is for use in temporary-user cases such
-                                   as tmpnb. (default False)
+                                   idle servers to cull. (default 0)
+  --cull-users                     Cull users in addition to servers.  This is
+                                   for use in temporary-user cases such as
+                                   tmpnb. (default False)
+  --internal-certs-location        The location of generated internal-ssl
+                                   certificates (only needed with --ssl-
+                                   enabled=true). (default internal-ssl)
   --max-age                        The maximum age (in seconds) of servers that
-                                   should be culled even if they are active
+                                   should be culled even if they are active.
                                    (default 0)
   --remove-named-servers           Remove named servers in addition to stopping
-                                   them.             This is useful for a
-                                   BinderHub that uses authentication and named
-                                   servers. (default False)
-  --timeout                        The idle timeout (in seconds) (default 600)
-  --url                            The JupyterHub API URL
+                                   them.  This is useful for a BinderHub that
+                                   uses authentication and named servers.
+                                   (default False)
+  --ssl-enabled                    Whether the Jupyter API endpoint has TLS
+                                   enabled. (default False)
+  --timeout                        The idle timeout (in seconds). (default 600)
+  --url                            The JupyterHub API URL.
 ```
 
 ## Caveats
