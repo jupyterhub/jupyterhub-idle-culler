@@ -84,6 +84,7 @@ def cull_idle(
     concurrency=10,
     ssl_enabled=False,
     internal_certs_location="",
+    cull_admin_users=True,
 ):
     """Shutdown idle single-user servers
 
@@ -320,9 +321,12 @@ def cull_idle(
             # which introduces the 'created' field which is never None
             inactive = age
 
+        user_is_admin = user["admin"]
+
         should_cull = (
             inactive is not None and inactive.total_seconds() >= inactive_limit
-        )
+        ) and (cull_admin_users or not user_is_admin)
+
         if should_cull:
             app_log.info("Culling user %s (inactive for %s)", user["name"], inactive)
 
@@ -475,6 +479,16 @@ def main():
             """
         ).strip(),
     )
+    define(
+        "cull_admin_users",
+        type=bool,
+        default=True,
+        help=dedent(
+            """
+            Whether admin users should be culled (only if --cull-users=true).
+            """
+        ).strip(),
+    )
 
     parse_command_line()
     if not options.cull_every:
@@ -502,6 +516,7 @@ def main():
         concurrency=options.concurrency,
         ssl_enabled=options.ssl_enabled,
         internal_certs_location=options.internal_certs_location,
+        cull_admin_users=options.cull_admin_users,
     )
     # schedule first cull immediately
     # because PeriodicCallback doesn't start until the end of the first interval
