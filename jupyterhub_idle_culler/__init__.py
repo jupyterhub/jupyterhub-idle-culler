@@ -90,6 +90,12 @@ def cull_idle(
 
     If cull_users, inactive *users* will be deleted as well.
     """
+    defaults = {
+        # GET /users may be slow if there are thousands of users and we
+        # don't do any server side filtering so default request timeouts
+        # to 60 seconds rather than tornado's 20 second default.
+        "request_timeout": os.environ.get("JUPYTERHUB_REQUEST_TIMEOUT", 60)
+    }
     if ssl_enabled:
         ssl_context = make_ssl_context(
             f"{internal_certs_location}/hub-internal/hub-internal.key",
@@ -99,8 +105,9 @@ def cull_idle(
 
         app_log.debug("ssl_enabled is Enabled: %s", ssl_enabled)
         app_log.debug("internal_certs_location is %s", internal_certs_location)
-        AsyncHTTPClient.configure(None, defaults={"ssl_options": ssl_context})
+        defaults["ssl_options"] = ssl_context
 
+    AsyncHTTPClient.configure(None, defaults=defaults)
     client = AsyncHTTPClient()
 
     if concurrency:

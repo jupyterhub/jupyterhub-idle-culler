@@ -98,3 +98,6 @@ The command line interface also gives a quick overview of the different options 
    users and users' servers. If you want a different value for users and servers,
    you should add this script to the services list twice, just with different
    `name`s, different values, and one with the `--cull-users` option.
+
+3. By default HTTP requests to the hub timeout after 60 seconds. This can be
+   changed by setting the `JUPYTERHUB_REQUEST_TIMEOUT` environment variable.
