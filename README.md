@@ -113,47 +113,82 @@ reports about the user servers via its REST API
 [(/users)](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#path--users)
 where user servers' `last_activity` is reported back.
 
-JupyterHub itself updates information about the user server's last activity at a
-regular interval via the [`update_last_activity`
-function](https://github.com/jupyterhub/jupyterhub/blob/1.4.1/jupyterhub/app.py#L2650).
-The `update_last_activity` function in turn collects and combines information
-about activity from two kinds of sources: from the [Proxy
-class](https://jupyterhub.readthedocs.io/en/stable/reference/proxy.html)
-instance and [Spawner
-class](https://jupyterhub.readthedocs.io/en/stable/reference/spawners.html)
-instances, one per server.
+The `last_activity` that JupyterHub reports is the most recent summary of
+information updated at a regular interval via the [`update_last_activity`
+function](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/jupyterhub/app.py#L2646)
+that combines two sources of information.
 
-The Proxy class, if it supports it, will return activity information related to
-served network traffic between a web browser and the user server.
+1. **The proxy's routes data**
 
-The Spawner class instances just returns the last activity state that its
-associated servers has self-reported. The user servers self-reporting of
-activity to JupyterHub is enabled via the
-[`notify_activity`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/jupyterhub/singleuser/mixins.py#L497)
-function that they have access to assuming they have started up using the
-[`jupyterhub-singleuser`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/setup.py#L115).
+   The `update_last_activity` function will [ask the
+   proxy](https://jupyterhub.readthedocs.io/en/stable/reference/proxy.html#retrieving-routes)
+   for the active routes and collects associated `last_activity` data if it is
+   available.
 
-The injected `notify_activity` function in turn make use of the servers
-[`last_activity`](https://github.com/jupyter/notebook/blob/b5ce67252e65cc8727b64ce57ca6f5bc143c78a3/notebook/notebookapp.py#L392-L397)
-function that combines information from API activity, kernel activity, kernel
-shutdown, and terminal activity.
+   `last_activity` data for routes will be available when using
+   [configurable-http-proxy](https://github.com/jupyterhub/configurable-http-proxy#readme)
+   as JupyterHub does by default, but if for example
+   [traefik-proxy](https://github.com/jupyterhub/traefik-proxy#readme) is used,
+   no such data will be available.
 
-As the kernel activity influence the user servers' self-reported activity, which
-in turn influence jupyterhub-idle-culler, it can be relevant to learn about the
-possibility to cull idle kernels. The default kernel manager, the
-MappingKernelManager, can be configured to cull idle kernels. See the [Jupyter
-Notebook server
-documentation](https://jupyter-notebook.readthedocs.io/en/stable/config.html#options)
-for more information about configuration options of relevance like these:
+2. **The user server's activity reports**
+
+   The `update_last_activity` function also reads JupyterHub's database that
+   keeps state about servers `last_activity`. These database records are updated
+   whenever a server notifies JupyterHub about activity, as they are
+   responsibility to do.
+
+   As the servers need to be aware of JupyterHub to notify it about activity,
+   they are supposed to be started via the
+   [`jupyterhub-singleuser`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/setup.py#L115)
+   script that is made available by installing jupyterhub (or `jupyterhub-base`
+   on conda-forge).
+
+   The `jupyterhub-singleuser` script launches a modified server application
+   that keeps JupyterHub updated with the server activity via the
+   [`notify_activity`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/jupyterhub/singleuser/mixins.py#L497)
+   function.
+
+   The `notify_activity` function in turn make use of the server applications
+   `last_activity` function (see implementation in
+   [NotebookApp](https://github.com/jupyter/notebook/blob/v6.4.0/notebook/notebookapp.py#L392-L397)
+   and
+   [ServerApp](https://github.com/jupyter-server/jupyter_server/blob/v1.9.0/jupyter_server/serverapp.py#L375)
+   respectively) that that combines information from API activity, kernel
+   activity, kernel shutdown, and terminal activity.
+
+Here is a summary of what's described so far:
+
+1. jupyterhub-idle-culler culls servers via JupyterHub's REST API.
+2. jupyterhub-idle-culler makes decisions based on information retrieved by
+   JupyterHub REST API.
+3. JupyterHub REST API reports information regularly updated by summarizing
+   information gained by: asking the proxy about routes' activity, and by
+   retaining activity information reported by the servers.
+
+Now, as the server's kernel activity influence the activity that servers will
+notify JupyterHub about, the kernel activity in turn influences
+jupyterhub-idle-culler. Due to this, it can be relevant to also learn a little
+about a mechanism to _cull idle kernels_ as well even though
+jupyterhub-idle-culler isn't involved in that.
+
+The default kernel manager, the MappingKernelManager, can be configured to cull
+idle kernels. Its configuration is documented in
+[NotebookApp's](https://jupyter-notebook.readthedocs.io/en/stable/config.html#options)
+and
+[ServerApp's](https://jupyter-server.readthedocs.io/en/latest/full-config.html)
+respective documentation, and here are some relevant kernel culling
+configuration options:
 
 - `MappingKernelManager.cull_busy`
 - `MappingKernelManager.cull_idle_timeout`
 - `MappingKernelManager.cull_interval`
 - `MappingKernelManager.cull_connected`
 
-  Note that `cull_connected` probably makes sense to set to `True` if your
-  JupyterHub users use a JupyterLab based user interface, see [this issue for
-  more details](https://github.com/jupyterlab/jupyterlab/issues/6893).
+  Note that `cull_connected` can be tricky to understand for JupyterLab as a
+  browser having a web-socket connection to a kernel or not isn't as obvious as
+  it was in the classical Jupyter notebook UI. See [this issue for more
+  details](https://github.com/jupyterlab/jupyterlab/issues/6893).
 
   Also note that configuration of MappingKernelManager should be made on the
   user server itself, for example via a `jupyter_notebook_config.py` file in
@@ -161,5 +196,5 @@ for more information about configuration options of relevance like these:
   running.
 
 Finally, note that a Jupyter Notebook server can shut itself down without
-without intervention by the `jupyterhub-idle-culler` if
+without intervention by jupyterhub-idle-culler if
 `NotebookApp.shutdown_no_activity_timeout` is configured.
