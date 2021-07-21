@@ -101,3 +101,102 @@ The command line interface also gives a quick overview of the different options 
 
 3. By default HTTP requests to the hub timeout after 60 seconds. This can be
    changed by setting the `JUPYTERHUB_REQUEST_TIMEOUT` environment variable.
+
+## How it works
+
+jupyterhub-idle-culler culls user servers using JupyterHub's REST API
+([/users/{name}/server](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#operation--users--name--server-delete)
+or
+[/users/{name}/servers/{server_name}](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#operation--users--name--servers--server_name--delete)),
+and makes the culling decisions based on its configuration and what JupyterHub
+reports about the user servers via its REST API
+[(/users)](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#path--users)
+where user servers' `last_activity` is reported back.
+
+The `last_activity` that JupyterHub reports is the most recent summary of
+information updated at a regular interval via the [`update_last_activity`
+function](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/jupyterhub/app.py#L2646)
+that combines two sources of information.
+
+1. **The proxy's routes data**
+
+   The `update_last_activity` function will [ask the
+   proxy](https://jupyterhub.readthedocs.io/en/stable/reference/proxy.html#retrieving-routes)
+   for the active routes like `/user/user1` and collects associated
+   `last_activity` data if it is available. This activity represents
+   successfully proxies network traffic.
+
+   `last_activity` data for routes will be available when using
+   [configurable-http-proxy](https://github.com/jupyterhub/configurable-http-proxy#readme)
+   as JupyterHub does by default, but if for example
+   [traefik-proxy](https://github.com/jupyterhub/traefik-proxy#readme) is used
+   as it is in the [TLJH distribution](https://tljh.jupyter.org), no such data
+   will be available.
+
+2. **The user server's activity reports**
+
+   The `update_last_activity` function also reads JupyterHub's database that
+   keeps state about servers `last_activity`. These database records are updated
+   whenever a server notifies JupyterHub about activity, as they are
+   responsibility to do.
+
+   Servers notify JupyterHub about activity by being started by the
+   [`jupyterhub-singleuser`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/setup.py#L115)
+   script that is made available by installing jupyterhub (or `jupyterhub-base`
+   on conda-forge).
+
+   The `jupyterhub-singleuser` script launches a modified server application
+   that keeps JupyterHub updated with the server activity via the
+   [`notify_activity`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/jupyterhub/singleuser/mixins.py#L497)
+   function.
+
+   The `notify_activity` function in turn make use of the server applications
+   `last_activity` function (see implementation in
+   [NotebookApp](https://github.com/jupyter/notebook/blob/v6.4.0/notebook/notebookapp.py#L392-L397)
+   and
+   [ServerApp](https://github.com/jupyter-server/jupyter_server/blob/v1.9.0/jupyter_server/serverapp.py#L375)
+   respectively) that that combines information from API activity, kernel
+   activity, kernel shutdown, and terminal activity. This activity also covers
+   activity of applications like RStudio running via `jupyter-server-proxy`.
+
+Here is a summary of what's described so far:
+
+1. jupyterhub-idle-culler culls servers via JupyterHub's REST API.
+2. jupyterhub-idle-culler makes decisions based on information retrieved by
+   JupyterHub REST API.
+3. JupyterHub REST API reports information regularly updated by summarizing
+   information gained by: asking the proxy about routes' activity, and by
+   retaining activity information reported by the servers.
+
+Now, as the server's kernel activity influence the activity that servers will
+notify JupyterHub about, the kernel activity in turn influences
+jupyterhub-idle-culler. Due to this, it can be relevant to also learn a little
+about a mechanism to _cull idle kernels_ as well even though
+jupyterhub-idle-culler isn't involved in that.
+
+The default kernel manager, the MappingKernelManager, can be configured to cull
+idle kernels. Its configuration is documented in
+[NotebookApp's](https://jupyter-notebook.readthedocs.io/en/stable/config.html#options)
+and
+[ServerApp's](https://jupyter-server.readthedocs.io/en/latest/full-config.html)
+respective documentation, and here are some relevant kernel culling
+configuration options:
+
+- `MappingKernelManager.cull_busy`
+- `MappingKernelManager.cull_idle_timeout`
+- `MappingKernelManager.cull_interval`
+- `MappingKernelManager.cull_connected`
+
+  Note that `cull_connected` can be tricky to understand for JupyterLab as a
+  browser having a web-socket connection to a kernel or not isn't as obvious as
+  it was in the classical Jupyter notebook UI. See [this issue for more
+  details](https://github.com/jupyterlab/jupyterlab/issues/6893).
+
+  Also note that configuration of MappingKernelManager should be made on the
+  user server itself, for example via a `jupyter_notebook_config.py` file in
+  `/etc/jupyter` or `/usr/local/etc/jupyter` rather than where JupyterHub is
+  running.
+
+Finally, note that a Jupyter Notebook server can shut itself down without
+without intervention by jupyterhub-idle-culler if
+`NotebookApp.shutdown_no_activity_timeout` is configured.
