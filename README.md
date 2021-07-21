@@ -122,14 +122,16 @@ that combines two sources of information.
 
    The `update_last_activity` function will [ask the
    proxy](https://jupyterhub.readthedocs.io/en/stable/reference/proxy.html#retrieving-routes)
-   for the active routes and collects associated `last_activity` data if it is
-   available.
+   for the active routes like `/user/user1` and collects associated
+   `last_activity` data if it is available. This activity represents
+   successfully proxies network traffic.
 
    `last_activity` data for routes will be available when using
    [configurable-http-proxy](https://github.com/jupyterhub/configurable-http-proxy#readme)
    as JupyterHub does by default, but if for example
-   [traefik-proxy](https://github.com/jupyterhub/traefik-proxy#readme) is used,
-   no such data will be available.
+   [traefik-proxy](https://github.com/jupyterhub/traefik-proxy#readme) is used
+   as it is in the [TLJH distribution](https://tljh.jupyter.org), no such data
+   will be available.
 
 2. **The user server's activity reports**
 
@@ -138,8 +140,7 @@ that combines two sources of information.
    whenever a server notifies JupyterHub about activity, as they are
    responsibility to do.
 
-   As the servers need to be aware of JupyterHub to notify it about activity,
-   they are supposed to be started via the
+   Servers notify JupyterHub about activity by being started by the
    [`jupyterhub-singleuser`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/setup.py#L115)
    script that is made available by installing jupyterhub (or `jupyterhub-base`
    on conda-forge).
@@ -155,7 +156,8 @@ that combines two sources of information.
    and
    [ServerApp](https://github.com/jupyter-server/jupyter_server/blob/v1.9.0/jupyter_server/serverapp.py#L375)
    respectively) that that combines information from API activity, kernel
-   activity, kernel shutdown, and terminal activity.
+   activity, kernel shutdown, and terminal activity. This activity also covers
+   activity of applications like RStudio running via `jupyter-server-proxy`.
 
 Here is a summary of what's described so far:
 
