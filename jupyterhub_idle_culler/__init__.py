@@ -3,6 +3,7 @@
 Monitor & Cull idle single-user servers and users
 """
 
+import asyncio
 import ssl
 import json
 import os
@@ -12,15 +13,10 @@ from distutils.version import LooseVersion as V
 from functools import partial
 from textwrap import dedent
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from urllib.parse import quote
 
 import dateutil.parser
 
-from tornado.gen import coroutine, multi
-from tornado.locks import Semaphore
 from tornado.log import app_log
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -73,8 +69,7 @@ def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname
     return ssl_context
 
 
-@coroutine
-def cull_idle(
+async def cull_idle(
     url,
     api_token,
     inactive_limit,
@@ -111,43 +106,67 @@ def cull_idle(
     client = AsyncHTTPClient()
 
     if concurrency:
-        semaphore = Semaphore(concurrency)
+        semaphore = asyncio.Semaphore(concurrency)
 
-        @coroutine
-        def fetch(req):
+        async def fetch(req):
             """client.fetch wrapped in a semaphore to limit concurrency"""
-            yield semaphore.acquire()
+            await semaphore.acquire()
             try:
-                return (yield client.fetch(req))
+                return await client.fetch(req)
             finally:
-                yield semaphore.release()
+                semaphore.release()
 
     else:
         fetch = client.fetch
+
+    async def fetch_paginated(req):
+        """Make a paginated API request
+
+        async generator, yields all items from a list endpoint
+        """
+        req.headers["Accept"] = "application/jupyterhub-pagination+json"
+        url = req.url
+        resp_future = asyncio.ensure_future(fetch(req))
+        page_no = 1
+        item_count = 0
+        while resp_future is not None:
+            response = await resp_future
+            resp_future = None
+            resp_model = json.loads(response.body.decode("utf8", "replace"))
+
+            if isinstance(resp_model, list):
+                # handle pre-2.0 response, no pagination
+                items = resp_model
+            else:
+                # paginated response
+                items = resp_model["items"]
+
+                next_info = resp_model["_pagination"]["next"]
+                if next_info:
+                    page_no += 1
+                    app_log.info(f"Fetching page {page_no} {next_info['url']}")
+                    # submit next request
+                    req.url = next_info["url"]
+                    resp_future = asyncio.ensure_future(fetch(req))
+
+            for item in items:
+                item_count += 1
+                yield item
+
+        app_log.debug(f"Fetched {item_count} items from {url} in {page_no} pages")
 
     # Starting with jupyterhub 1.3.0 the users can be filtered in the server
     # using the `state` filter parameter. "ready" means all users who have any
     # ready servers (running, not pending).
     auth_header = {"Authorization": "token %s" % api_token}
-    resp = yield fetch(HTTPRequest(url=url + "/info", headers=auth_header))
+    resp = await fetch(HTTPRequest(url=url + "/info", headers=auth_header))
+
     info = json.loads(resp.body.decode("utf8", "replace"))
     state_filter = V(info["version"]) >= STATE_FILTER_MIN_VERSION
 
-    req = HTTPRequest(
-        url=url + "/users%s" % ("?state=ready" if state_filter else ""),
-        headers=auth_header,
-    )
     now = datetime.now(timezone.utc)
 
-    resp = yield fetch(req)
-    users = json.loads(resp.body.decode("utf8", "replace"))
-    app_log.debug(
-        "Got %d users%s", len(users), (" with ready servers" if state_filter else "")
-    )
-    futures = []
-
-    @coroutine
-    def handle_server(user, server_name, server, max_age, inactive_limit):
+    async def handle_server(user, server_name, server, max_age, inactive_limit):
         """Handle (maybe) culling a single server
 
         "server" is the entire server model from the API.
@@ -261,15 +280,14 @@ def cull_idle(
             body=body,
             allow_nonstandard_methods=True,
         )
-        resp = yield fetch(req)
+        resp = await fetch(req)
         if resp.code == 202:
             app_log.warning("Server %s is slow to stop", log_name)
             # return False to prevent culling user with pending shutdowns
             return False
         return True
 
-    @coroutine
-    def handle_user(user):
+    async def handle_user(user):
         """Handle one user.
 
         Create a list of their servers, and async exec them.  Wait for
@@ -298,7 +316,11 @@ def cull_idle(
             handle_server(user, server_name, server, max_age, inactive_limit)
             for server_name, server in servers.items()
         ]
-        results = yield multi(server_futures)
+        if server_futures:
+            results = await asyncio.gather(*server_futures)
+        else:
+            results = []
+
         if not cull_users:
             return
         # some servers are still running, cannot cull users
@@ -362,26 +384,39 @@ def cull_idle(
         req = HTTPRequest(
             url=url + "/users/%s" % user["name"], method="DELETE", headers=auth_header
         )
-        yield fetch(req)
+        await fetch(req)
         return True
 
-    for user in users:
-        futures.append((user["name"], handle_user(user)))
+    futures = []
 
-    # If we filtered users by state=ready then we did not get back any which
+    # If we filter users by state=ready then we do not get back any which
     # are inactive, so if we're also culling users get the set of users which
     # are inactive and see if they should be culled as well.
     if state_filter and cull_users:
         req = HTTPRequest(url=url + "/users?state=inactive", headers=auth_header)
-        resp = yield fetch(req)
-        users = json.loads(resp.body.decode("utf8", "replace"))
-        app_log.debug("Got %d users with inactive servers", len(users))
-        for user in users:
+        n_idle = 0
+        async for user in fetch_paginated(req):
+            n_idle += 1
             futures.append((user["name"], handle_user(user)))
+        app_log.debug(f"Got {n_idle} users with inactive servers")
+
+    req = HTTPRequest(
+        url=url + "/users%s" % ("?state=ready" if state_filter else ""),
+        headers=auth_header,
+    )
+
+    n_users = 0
+    async for user in fetch_paginated(req):
+        n_users += 1
+        futures.append((user["name"], handle_user(user)))
+
+    app_log.debug(
+        "Got %d users%s", n_users, (" with ready servers" if state_filter else "")
+    )
 
     for (name, f) in futures:
         try:
-            result = yield f
+            result = await f
         except Exception:
             app_log.exception("Error processing %s", name)
         else:
