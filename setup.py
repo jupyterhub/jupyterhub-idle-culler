@@ -16,5 +16,6 @@ setup(
             "jupyterhub-idle-culler = jupyterhub_idle_culler:main",
         ]
     },
+    python_requires=">=3.6",
     install_requires=["tornado", "python-dateutil"],
 )

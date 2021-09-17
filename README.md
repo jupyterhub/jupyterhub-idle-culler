@@ -60,6 +60,10 @@ python3 -m jupyterhub-idle-culler [--timeout=900] [--url=http://localhost:8081/h
 The command line interface also gives a quick overview of the different options for configuration.
 
 ```
+  --api-page-size                  Number of users to request per page, when
+                                   using JupyterHub 2.0's paginated user list
+                                   API. Default: user the server-side default
+                                   configured page size. (default 0)
   --concurrency                    Limit the number of concurrent requests made
                                    to the Hub.  Deleting a lot of users at the
                                    same time can slow down the Hub, so limit
@@ -104,13 +108,17 @@ The command line interface also gives a quick overview of the different options 
 
 ## How it works
 
+jupytehrub-idle-culler lists available users via JupyterHub's [/users][users-api] REST API.
+
+[users-api]: https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#path--users
+
 jupyterhub-idle-culler culls user servers using JupyterHub's REST API
 ([/users/{name}/server](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#operation--users--name--server-delete)
 or
 [/users/{name}/servers/{server_name}](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#operation--users--name--servers--server_name--delete)),
 and makes the culling decisions based on its configuration and what JupyterHub
 reports about the user servers via its REST API
-[(/users)](https://jupyterhub.readthedocs.io/en/stable/_static/rest-api/index.html#path--users)
+[(/users)][users-api]
 where user servers' `last_activity` is reported back.
 
 The `last_activity` that JupyterHub reports is the most recent summary of
@@ -138,7 +146,7 @@ that combines two sources of information.
    The `update_last_activity` function also reads JupyterHub's database that
    keeps state about servers `last_activity`. These database records are updated
    whenever a server notifies JupyterHub about activity, as they are
-   responsibility to do.
+   responsible to do.
 
    Servers notify JupyterHub about activity by being started by the
    [`jupyterhub-singleuser`](https://github.com/jupyterhub/jupyterhub/blob/1.4.2/setup.py#L115)
@@ -200,3 +208,18 @@ configuration options:
 Finally, note that a Jupyter Notebook server can shut itself down without
 without intervention by jupyterhub-idle-culler if
 `NotebookApp.shutdown_no_activity_timeout` is configured.
+
+### Caveats
+
+#### Pagination
+
+JupyterHub 2.0 introduces pagination to the [/users][users-api] API endpoint.
+This pagination does not guarantee a consistent snapshot
+for consecutive requests spread over time,
+so it is possible for a highly active hub to occasionally miss culling users crossing page boundaries between requests.
+This is expected to be an infrequent occurrence and only result in delaying a server being culled by one cull interval
+in realistic scenarios, so of minor consequence in JupyterHub.
+
+The issue can be mitigated by requesting a larger page size,
+via e.g. `--api-page-size=200`,
+but feel free to open an issue if this is causing a problem for you.
