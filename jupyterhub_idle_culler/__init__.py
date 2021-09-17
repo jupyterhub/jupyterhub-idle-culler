@@ -19,6 +19,7 @@ import dateutil.parser
 
 from tornado.log import app_log
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
+from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.options import define, options, parse_command_line
 
@@ -80,6 +81,7 @@ async def cull_idle(
     ssl_enabled=False,
     internal_certs_location="",
     cull_admin_users=True,
+    api_page_size=0,
 ):
     """Shutdown idle single-user servers
 
@@ -389,19 +391,30 @@ async def cull_idle(
 
     futures = []
 
+    params = {}
+    if api_page_size:
+        params["limit"] = str(api_page_size)
+
+    users_url = url + "/users"
+
     # If we filter users by state=ready then we do not get back any which
     # are inactive, so if we're also culling users get the set of users which
     # are inactive and see if they should be culled as well.
     if state_filter and cull_users:
-        req = HTTPRequest(url=url + "/users?state=inactive", headers=auth_header)
+        inactive_params = {"state": "inactive"}
+        inactive_params.update(params)
+        req = HTTPRequest(url_concat(users_url, inactive_params), headers=auth_header)
         n_idle = 0
         async for user in fetch_paginated(req):
             n_idle += 1
             futures.append((user["name"], handle_user(user)))
         app_log.debug(f"Got {n_idle} users with inactive servers")
 
+    if state_filter:
+        params["state"] = "ready"
+
     req = HTTPRequest(
-        url=url + "/users%s" % ("?state=ready" if state_filter else ""),
+        url=url_concat(users_url, params),
         headers=auth_header,
     )
 
@@ -531,6 +544,18 @@ def main():
             """
         ).strip(),
     )
+    define(
+        "api_page_size",
+        type=int,
+        default=0,
+        help=dedent(
+            """
+            Number of users to request per page,
+            when using JupyterHub 2.0's paginated user list API.
+            Default: user the server-side default configured page size.
+            """
+        ).strip(),
+    )
 
     parse_command_line()
     if not options.cull_every:
@@ -559,6 +584,7 @@ def main():
         ssl_enabled=options.ssl_enabled,
         internal_certs_location=options.internal_certs_location,
         cull_admin_users=options.cull_admin_users,
+        api_page_size=options.api_page_size,
     )
     # schedule first cull immediately
     # because PeriodicCallback doesn't start until the end of the first interval

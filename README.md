@@ -60,6 +60,10 @@ python3 -m jupyterhub-idle-culler [--timeout=900] [--url=http://localhost:8081/h
 The command line interface also gives a quick overview of the different options for configuration.
 
 ```
+  --api-page-size                  Number of users to request per page, when
+                                   using JupyterHub 2.0's paginated user list
+                                   API. Default: user the server-side default
+                                   configured page size. (default 0)
   --concurrency                    Limit the number of concurrent requests made
                                    to the Hub.  Deleting a lot of users at the
                                    same time can slow down the Hub, so limit
