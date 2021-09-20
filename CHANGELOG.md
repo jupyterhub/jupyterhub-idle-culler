@@ -3,6 +3,30 @@
 This changelog is maintained manually with assistance of
 [`github-activity`](https://github.com/executablebooks/github-activity).
 
+## [1.2] - 2021-09-20
+
+#### New features added
+
+- Flag --cull-admin-users added (default: true) for when --cull-users=true [#24](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/24) ([@anderoonies](https://github.com/anderoonies))
+
+#### Enhancements made
+
+- support JupyterHub 2.0 API pagination [#30](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/30) ([@minrk](https://github.com/minrk))
+- Change default request_timeout and allow override [#27](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/27) ([@mriedem](https://github.com/mriedem))
+- Filter users on the server if possible [#22](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/22) ([@mriedem](https://github.com/mriedem))
+
+#### Documentation improvements
+
+- document required scopes for non-admin permissions with hub 2.0 [#32](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/32) ([@minrk](https://github.com/minrk))
+- Add documentation about how it works in README.md [#28](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/28) ([@consideRatio](https://github.com/consideRatio))
+- Update README CLI's options list and fix indentation issues for --help [#23](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/23) ([@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/jupyterhub-idle-culler/graphs/contributors?from=2021-03-05&to=2021-09-20&type=c))
+
+[@anderoonies](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aanderoonies+updated%3A2021-03-05..2021-09-20&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2021-03-05..2021-09-20&type=Issues) | [@minrk](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2021-03-05..2021-09-20&type=Issues) | [@mriedem](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Amriedem+updated%3A2021-03-05..2021-09-20&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2021-03-05..2021-09-20&type=Issues)
+
 ## [1.1] - 2021-03-05
 
 #### Enhancements made
