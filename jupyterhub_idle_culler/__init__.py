@@ -161,10 +161,10 @@ async def cull_idle(
     # using the `state` filter parameter. "ready" means all users who have any
     # ready servers (running, not pending).
     auth_header = {"Authorization": "token %s" % api_token}
-    resp = await fetch(HTTPRequest(url=url + "/info", headers=auth_header))
+    resp = await fetch(HTTPRequest(url=url + "/", headers=auth_header))
 
-    info = json.loads(resp.body.decode("utf8", "replace"))
-    state_filter = V(info["version"]) >= STATE_FILTER_MIN_VERSION
+    resp_model = json.loads(resp.body.decode("utf8", "replace"))
+    state_filter = V(resp_model["version"]) >= STATE_FILTER_MIN_VERSION
 
     now = datetime.now(timezone.utc)
 
