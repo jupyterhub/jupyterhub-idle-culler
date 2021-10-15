@@ -3,7 +3,26 @@
 This changelog is maintained manually with assistance of
 [`github-activity`](https://github.com/executablebooks/github-activity).
 
-## [1.2] - 2021-09-20
+## 1.2
+
+### 1.2.1 - 2021-10-15
+
+#### Enhancements made
+
+- Avoid the need for read:hub scope [#35](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/35) ([@consideRatio](https://github.com/consideRatio))
+
+#### Documentation improvements
+
+- docs: change from master branch to main [#37](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/37) ([@consideRatio](https://github.com/consideRatio))
+- Minor tweaks to the readme [#34](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/34) ([@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/jupyterhub-idle-culler/graphs/contributors?from=2021-09-20&to=2021-10-15&type=c))
+
+[@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2021-09-20..2021-10-15&type=Issues)
+
+### 1.2.0 - 2021-09-20
 
 #### New features added
 
@@ -27,7 +46,9 @@ This changelog is maintained manually with assistance of
 
 [@anderoonies](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aanderoonies+updated%3A2021-03-05..2021-09-20&type=Issues) | [@consideRatio](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2021-03-05..2021-09-20&type=Issues) | [@minrk](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2021-03-05..2021-09-20&type=Issues) | [@mriedem](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Amriedem+updated%3A2021-03-05..2021-09-20&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2021-03-05..2021-09-20&type=Issues)
 
-## [1.1] - 2021-03-05
+## 1.1
+
+### 1.1.0 - 2021-03-05
 
 #### Enhancements made
 
@@ -55,6 +76,8 @@ This changelog is maintained manually with assistance of
 
 [@1kastner](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3A1kastner+updated%3A2020-04-28..2021-01-28&type=Issues) | [@betatim](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Abetatim+updated%3A2020-04-28..2021-01-28&type=Issues) | [@chancez](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Achancez+updated%3A2020-04-28..2021-01-28&type=Issues) | [@ericdill](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aericdill+updated%3A2020-04-28..2021-01-28&type=Issues) | [@manics](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Amanics+updated%3A2020-04-28..2021-01-28&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ameeseeksmachine+updated%3A2020-04-28..2021-01-28&type=Issues) | [@minrk](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2020-04-28..2021-01-28&type=Issues) | [@riyasyash](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ariyasyash+updated%3A2020-04-28..2021-01-28&type=Issues) | [@rkdarst](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Arkdarst+updated%3A2020-04-28..2021-01-28&type=Issues) | [@yuvipanda](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2020-04-28..2021-01-28&type=Issues)
 
-## [1.0] - 2020-04-27
+## 1.0
+
+### 1.0.0 - 2020-04-27
 
 Initial release as a standalone Python package.
