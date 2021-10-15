@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="jupyterhub-idle-culler",
-    version="1.2.1",
+    version="1.2.2.dev1",
     packages=find_packages(),
     license="3-BSD",
     long_description=open("README.md").read(),
