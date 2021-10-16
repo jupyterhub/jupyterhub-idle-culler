@@ -70,6 +70,12 @@ def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname
     return ssl_context
 
 
+def utcnow():
+    """Return timezone-aware datetime for right now"""
+    # Only a standalone function for mocking purposes
+    return datetime.now(timezone.utc)
+
+
 async def cull_idle(
     url,
     api_token,
@@ -166,7 +172,7 @@ async def cull_idle(
     resp_model = json.loads(resp.body.decode("utf8", "replace"))
     state_filter = V(resp_model["version"]) >= STATE_FILTER_MIN_VERSION
 
-    now = datetime.now(timezone.utc)
+    now = utcnow()
 
     async def handle_server(user, server_name, server, max_age, inactive_limit):
         """Handle (maybe) culling a single server

@@ -1,1 +1,4 @@
 include COPYING.md
+include *.md
+include *.txt
+graft tests
