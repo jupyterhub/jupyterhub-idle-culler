@@ -31,10 +31,11 @@ It can be assigned only the permissions it needs.
 
 `jupyterhub-idle-culler` requires the following scopes to function:
 
-- `list:users` - access to the user list API, our source of information about who to cull
-- `read:users:activity` - read the last_activity field of the user
-- `delete:servers` - management of servers (this includes stopping servers)
-- `admin:users` (**optional**) - only needed if using `--cull-users`
+- `list:users` - to access to the user list API, our source of information about who to cull
+- `read:users:activity` - to read the users' `last_activity` field
+- `read:servers` - to read the users' `servers` field
+- `delete:servers` - to stop users' servers, and delete named servers if `--remove-named-servers` is passed
+- `admin:users` (**optional**) - to delete users if `--cull-users` is passed
 
 To assign the service the appropriate permissions, declare a role in your `jupyterhub_config.py`:
 
@@ -45,6 +46,7 @@ c.JupyterHub.load_roles = [
         "scopes": [
             "list:users",
             "read:users:activity",
+            "read:servers",
             "delete:servers",
             # "admin:users", # if using --cull-users
         ],
