@@ -262,8 +262,7 @@ configuration options:
   `/etc/jupyter` or `/usr/local/etc/jupyter` rather than where JupyterHub is
   running.
 
-Finally, note that a Jupyter Notebook server can shut itself down without
-without intervention by jupyterhub-idle-culler if
+Finally, note that a Jupyter Notebook server can shut itself down without intervention by jupyterhub-idle-culler if
 `NotebookApp.shutdown_no_activity_timeout` is configured.
 
 ### Caveats
