@@ -10,28 +10,28 @@
 #
 repos:
   # Autoformat: Python code
-  - repo: https://github.com/ambv/black
-    rev: 20.8b1
+  - repo: https://github.com/psf/black
+    rev: 22.12.0
     hooks:
       - id: black
         args: [--target-version=py36]
 
   # Autoformat: markdown, yaml
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.2.1
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         exclude: COPYING.md
 
   # Lint: Python code
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: "3.8.4"
+  - repo: https://github.com/PyCQA/flake8
+    rev: "6.0.0"
     hooks:
       - id: flake8
 
   # Misc...
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.4.0
     # ref: https://github.com/pre-commit/pre-commit-hooks#hooks-available
     hooks:
       # Autoformat: Makes sure files end in a newline and only a newline.
