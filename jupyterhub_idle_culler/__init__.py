@@ -97,7 +97,7 @@ async def cull_idle(
         # GET /users may be slow if there are thousands of users and we
         # don't do any server side filtering so default request timeouts
         # to 60 seconds rather than tornado's 20 second default.
-        "request_timeout": os.environ.get("JUPYTERHUB_REQUEST_TIMEOUT", 60)
+        "request_timeout": int(os.environ.get("JUPYTERHUB_REQUEST_TIMEOUT") or 60)
     }
     if ssl_enabled:
         ssl_context = make_ssl_context(
