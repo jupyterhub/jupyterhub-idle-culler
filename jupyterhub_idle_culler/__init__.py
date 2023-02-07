@@ -433,7 +433,7 @@ async def cull_idle(
         "Got %d users%s", n_users, (" with ready servers" if state_filter else "")
     )
 
-    for (name, f) in futures:
+    for name, f in futures:
         try:
             result = await f
         except Exception:
