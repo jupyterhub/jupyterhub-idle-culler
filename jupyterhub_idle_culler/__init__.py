@@ -54,7 +54,7 @@ def format_td(td):
     seconds = seconds % 3600
     m = seconds // 60
     seconds = seconds % 60
-    return "{h:02}:{m:02}:{seconds:02}".format(h=h, m=m, seconds=seconds)
+    return f"{h:02}:{m:02}:{seconds:02}"
 
 
 def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname=True):
@@ -183,7 +183,7 @@ async def cull_idle(
         """
         log_name = user["name"]
         if server_name:
-            log_name = "%s/%s" % (user["name"], server_name)
+            log_name = "{}/{}".format(user["name"], server_name)
         if server.get("pending"):
             app_log.warning(
                 "Not culling server %s with pending %s", log_name, server["pending"]
@@ -271,7 +271,7 @@ async def cull_idle(
             # for starting again or stopped and removed. To remove the named
             # server we have to pass an additional option in the body of our
             # DELETE request.
-            delete_url = url + "/users/%s/servers/%s" % (
+            delete_url = url + "/users/{}/servers/{}".format(
                 quote(user["name"]),
                 quote(server["name"]),
             )
