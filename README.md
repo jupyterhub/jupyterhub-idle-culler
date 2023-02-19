@@ -1,6 +1,6 @@
 # JupyterHub Idle Culler Service
 
-[![GitHub Workflow Status - Test](https://img.shields.io/github/workflow/status/jupyterhub/jupyterhub-idle-culler/Test?logo=github&label=tests)](https://github.com/jupyterhub/jupyterhub-idle-culler/actions)
+[![GitHub Workflow Status - Test](https://img.shields.io/github/actions/workflow/status/jupyterhub/jupyterhub-idle-culler/test.yaml?logo=github&label=tests)](https://github.com/jupyterhub/jupyterhub-idle-culler/actions)
 [![Latest PyPI version](https://img.shields.io/pypi/v/jupyterhub-idle-culler?logo=pypi&logoColor=white)](https://pypi.python.org/pypi/jupyterhub-idle-culler)
 [![GitHub](https://img.shields.io/badge/issue_tracking-github-blue?logo=github)](https://github.com/jupyterhub/jupyterhub-idle-culler/issues)
 [![Discourse](https://img.shields.io/badge/help_forum-discourse-blue?logo=discourse)](https://discourse.jupyter.org/c/jupyterhub)
