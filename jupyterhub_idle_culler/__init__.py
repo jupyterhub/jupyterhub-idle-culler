@@ -8,12 +8,12 @@ import json
 import os
 import ssl
 from datetime import datetime, timezone
-from distutils.version import LooseVersion as V
 from functools import partial
 from textwrap import dedent
 from urllib.parse import quote
 
 import dateutil.parser
+from packaging.version import Version as V
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
