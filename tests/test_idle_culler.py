@@ -1,6 +1,6 @@
+import sys
 from datetime import timedelta
 from subprocess import check_output
-import sys
 from unittest import mock
 
 from jupyterhub_idle_culler import utcnow

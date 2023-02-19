@@ -4,23 +4,20 @@ Monitor & Cull idle single-user servers and users
 """
 
 import asyncio
-import ssl
 import json
 import os
-from datetime import datetime
-from datetime import timezone
+import ssl
+from datetime import datetime, timezone
 from distutils.version import LooseVersion as V
 from functools import partial
 from textwrap import dedent
-
 from urllib.parse import quote
 
 import dateutil.parser
-
-from tornado.log import app_log
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.log import app_log
 from tornado.options import define, options, parse_command_line
 
 __version__ = "1.2.2.dev1"

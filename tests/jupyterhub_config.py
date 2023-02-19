@@ -1,7 +1,7 @@
 import os
 
-from packaging.version import Version as V
 import jupyterhub
+from packaging.version import Version as V
 
 c = get_config()  # noqa
 
