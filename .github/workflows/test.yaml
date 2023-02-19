@@ -30,12 +30,16 @@ jobs:
         include:
           - python-version: "3.7"
             jupyterhub-version: 1.*
+            sqlalchemy-version: 1.*
           - python-version: "3.8"
             jupyterhub-version: 2.0.*
+            sqlalchemy-version: 1.*
           - python-version: "3.9"
             jupyterhub-version: 2.*
+            sqlalchemy-version: 1.*
           - python-version: "3.10"
             jupyterhub-version: 3.0.*
+            sqlalchemy-version: 1.*
           - python-version: "3.11"
             jupyterhub-version: 3.*
 
@@ -60,6 +64,10 @@ jobs:
         if: ${{ matrix.jupyterhub-version }}
         run: |
           pip install --pre jupyterhub==${{ matrix.jupyterhub-version }}
+      - name: Install specified sqlalchemy version
+        if: ${{ matrix.sqlalchemy-version }}
+        run: |
+          pip install sqlalchemy==${{ matrix.sqlalchemy-version }}
 
       - name: List Python dependencies
         run: |
