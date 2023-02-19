@@ -46,6 +46,7 @@ c.JupyterHub.load_roles = [
         "scopes": [
             "list:users",
             "read:users:activity",
+            "read:servers",
             "delete:servers",
             # "admin:users", # if using --cull-users
         ],
