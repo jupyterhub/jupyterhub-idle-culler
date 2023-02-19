@@ -17,14 +17,14 @@ repos:
   #       args:
   #         - --py37-plus
 
-  # # Autoformat: Python code
-  # - repo: https://github.com/PyCQA/autoflake
-  #   rev: v2.0.1
-  #   hooks:
-  #     - id: autoflake
-  #       # args ref: https://github.com/PyCQA/autoflake#advanced-usage
-  #       args:
-  #         - --in-place
+  # Autoformat: Python code
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.0.1
+    hooks:
+      - id: autoflake
+        # args ref: https://github.com/PyCQA/autoflake#advanced-usage
+        args:
+          - --in-place
 
   # Autoformat: Python code
   - repo: https://github.com/pycqa/isort
