@@ -1,8 +1,0 @@
-jupyterhub
-jupyterlab
-notebook
-nullauthenticator # only needed for jupyterhub 1.x
-psutil
-pytest
-pytest-asyncio
-pytest-cov

@@ -58,7 +58,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install -e . -r dev-requirements.txt
+          pip install -e ".[test]"
 
       - name: Install specified jupyterhub version
         if: ${{ matrix.jupyterhub-version }}
@@ -75,6 +75,6 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -v --maxfail=2 --color=yes --cov=jupyterhub_idle_culler
+          pytest --maxfail=2 --cov=jupyterhub_idle_culler
 
       - uses: codecov/codecov-action@v3

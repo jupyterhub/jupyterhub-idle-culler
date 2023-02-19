@@ -23,6 +23,8 @@ from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.options import define, options, parse_command_line
 
+__version__ = "1.2.2.dev1"
+
 STATE_FILTER_MIN_VERSION = V("1.3.0")
 
 

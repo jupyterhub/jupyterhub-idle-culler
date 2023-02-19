@@ -45,4 +45,4 @@ async def test_cull_idle(cull_idle, start_users, admin_request):
 
 
 def test_help():
-    out = check_output([sys.executable, "-m", "jupyterhub_idle_culler", "--help"])
+    check_output([sys.executable, "-m", "jupyterhub_idle_culler", "--help"])
