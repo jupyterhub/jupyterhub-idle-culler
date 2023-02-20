@@ -165,8 +165,8 @@ async def cull_idle(
     # Starting with jupyterhub 1.3.0 the users can be filtered in the server
     # using the `state` filter parameter. "ready" means all users who have any
     # ready servers (running, not pending).
-    auth_header = {"Authorization": "token %s" % api_token}
-    resp = await fetch(HTTPRequest(url=url + "/", headers=auth_header))
+    auth_header = {"Authorization": f"token {api_token}"}
+    resp = await fetch(HTTPRequest(url=f"{url}/", headers=auth_header))
 
     resp_model = json.loads(resp.body.decode("utf8", "replace"))
     state_filter = V(resp_model["version"]) >= STATE_FILTER_MIN_VERSION
@@ -183,7 +183,7 @@ async def cull_idle(
         """
         log_name = user["name"]
         if server_name:
-            log_name = "{}/{}".format(user["name"], server_name)
+            log_name = f"{user['name']}/{server_name}"
         if server.get("pending"):
             app_log.warning(
                 "Not culling server %s with pending %s", log_name, server["pending"]
@@ -271,14 +271,18 @@ async def cull_idle(
             # for starting again or stopped and removed. To remove the named
             # server we have to pass an additional option in the body of our
             # DELETE request.
-            delete_url = url + "/users/{}/servers/{}".format(
+            delete_url = "{}/users/{}/servers/{}".format(
+                url,
                 quote(user["name"]),
                 quote(server["name"]),
             )
             if remove_named_servers:
                 body = json.dumps({"remove": True})
         else:
-            delete_url = url + "/users/%s/server" % quote(user["name"])
+            delete_url = "{}/users/{}/server".format(
+                url,
+                quote(user["name"]),
+            )
 
         req = HTTPRequest(
             url=delete_url,
@@ -372,24 +376,20 @@ async def cull_idle(
             # which doesn't define the 'started' field
             if age is not None and age.total_seconds() >= max_age:
                 app_log.info(
-                    "Culling user %s (age: %s, inactive for %s)",
-                    user["name"],
-                    format_td(age),
-                    format_td(inactive),
+                    f"Culling user {user['name']} "
+                    f"(age: {format_td(age)}, inactive for {format_td(inactive)})"
                 )
                 should_cull = True
 
         if not should_cull:
             app_log.debug(
-                "Not culling user %s (created: %s, last active: %s)",
-                user["name"],
-                format_td(age),
-                format_td(inactive),
+                f"Not culling user {user['name']} "
+                f"(created: {format_td(age)}, last active: {format_td(inactive)})"
             )
             return False
 
         req = HTTPRequest(
-            url=url + "/users/%s" % user["name"], method="DELETE", headers=auth_header
+            url=f"{url}/users/{user['name']}", method="DELETE", headers=auth_header
         )
         await fetch(req)
         return True
@@ -400,11 +400,10 @@ async def cull_idle(
     if api_page_size:
         params["limit"] = str(api_page_size)
 
-    users_url = url + "/users"
-
     # If we filter users by state=ready then we do not get back any which
     # are inactive, so if we're also culling users get the set of users which
     # are inactive and see if they should be culled as well.
+    users_url = f"{url}/users"
     if state_filter and cull_users:
         inactive_params = {"state": "inactive"}
         inactive_params.update(params)
