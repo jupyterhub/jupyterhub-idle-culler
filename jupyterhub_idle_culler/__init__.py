@@ -186,7 +186,7 @@ async def cull_idle(
             log_name = f"{user['name']}/{server_name}"
         if server.get("pending"):
             app_log.warning(
-                "Not culling server %s with pending %s", log_name, server["pending"]
+                f"Not culling server {log_name} with pending {server['pending']}"
             )
             return False
 
@@ -199,7 +199,7 @@ async def cull_idle(
 
         if not server.get("ready", bool(server["url"])):
             app_log.warning(
-                "Not culling not-ready not-pending server %s: %s", log_name, server
+                f"Not culling not-ready not-pending server {log_name}: {server}"
             )
             return False
 
@@ -239,7 +239,7 @@ async def cull_idle(
         )
         if should_cull:
             app_log.info(
-                "Culling server %s (inactive for %s)", log_name, format_td(inactive)
+                f"Culling server {log_name} (inactive for {format_td(inactive)})"
             )
 
         if max_age and not should_cull:
@@ -293,7 +293,7 @@ async def cull_idle(
         )
         resp = await fetch(req)
         if resp.code == 202:
-            app_log.warning("Server %s is slow to stop", log_name)
+            app_log.warning(f"Server {log_name} is slow to stop")
             # return False to prevent culling user with pending shutdowns
             return False
         return True
@@ -368,7 +368,7 @@ async def cull_idle(
         ) and (cull_admin_users or not user_is_admin)
 
         if should_cull:
-            app_log.info("Culling user %s (inactive for %s)", user["name"], inactive)
+            app_log.info(f"Culling user {user['name']} " f"(inactive for {inactive})")
 
         if max_age and not should_cull:
             # only check created if max_age is specified
@@ -427,15 +427,16 @@ async def cull_idle(
         n_users += 1
         futures.append((user["name"], handle_user(user)))
 
-    app_log.debug(
-        "Got %d users%s", n_users, (" with ready servers" if state_filter else "")
-    )
+    if state_filter:
+        app_log.debug(f"Got {n_users} users with ready servers")
+    else:
+        app_log.debug(f"Got {n_users} users")
 
     for name, f in futures:
         try:
             result = await f
         except Exception:
-            app_log.exception("Error processing %s", name)
+            app_log.exception(f"Error processing {name}")
         else:
             if result:
                 app_log.debug("Finished culling %s", name)
@@ -570,9 +571,8 @@ def main():
         AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
     except ImportError as e:
         app_log.warning(
-            "Could not load pycurl: %s\n"
-            "pycurl is recommended if you have a large number of users.",
-            e,
+            f"Could not load pycurl: {e}\n"
+            "pycurl is recommended if you have a large number of users."
         )
 
     loop = IOLoop.current()
