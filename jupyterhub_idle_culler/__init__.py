@@ -4,24 +4,23 @@ Monitor & Cull idle single-user servers and users
 """
 
 import asyncio
-import ssl
 import json
 import os
-from datetime import datetime
-from datetime import timezone
-from distutils.version import LooseVersion as V
+import ssl
+from datetime import datetime, timezone
 from functools import partial
 from textwrap import dedent
-
 from urllib.parse import quote
 
 import dateutil.parser
-
-from tornado.log import app_log
+from packaging.version import Version as V
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
+from tornado.log import app_log
 from tornado.options import define, options, parse_command_line
+
+__version__ = "1.2.2.dev1"
 
 STATE_FILTER_MIN_VERSION = V("1.3.0")
 
@@ -55,7 +54,7 @@ def format_td(td):
     seconds = seconds % 3600
     m = seconds // 60
     seconds = seconds % 60
-    return "{h:02}:{m:02}:{seconds:02}".format(h=h, m=m, seconds=seconds)
+    return f"{h:02}:{m:02}:{seconds:02}"
 
 
 def make_ssl_context(keyfile, certfile, cafile=None, verify=True, check_hostname=True):
@@ -166,8 +165,8 @@ async def cull_idle(
     # Starting with jupyterhub 1.3.0 the users can be filtered in the server
     # using the `state` filter parameter. "ready" means all users who have any
     # ready servers (running, not pending).
-    auth_header = {"Authorization": "token %s" % api_token}
-    resp = await fetch(HTTPRequest(url=url + "/", headers=auth_header))
+    auth_header = {"Authorization": f"token {api_token}"}
+    resp = await fetch(HTTPRequest(url=f"{url}/", headers=auth_header))
 
     resp_model = json.loads(resp.body.decode("utf8", "replace"))
     state_filter = V(resp_model["version"]) >= STATE_FILTER_MIN_VERSION
@@ -184,10 +183,10 @@ async def cull_idle(
         """
         log_name = user["name"]
         if server_name:
-            log_name = "%s/%s" % (user["name"], server_name)
+            log_name = f"{user['name']}/{server_name}"
         if server.get("pending"):
             app_log.warning(
-                "Not culling server %s with pending %s", log_name, server["pending"]
+                f"Not culling server {log_name} with pending {server['pending']}"
             )
             return False
 
@@ -200,7 +199,7 @@ async def cull_idle(
 
         if not server.get("ready", bool(server["url"])):
             app_log.warning(
-                "Not culling not-ready not-pending server %s: %s", log_name, server
+                f"Not culling not-ready not-pending server {log_name}: {server}"
             )
             return False
 
@@ -240,7 +239,7 @@ async def cull_idle(
         )
         if should_cull:
             app_log.info(
-                "Culling server %s (inactive for %s)", log_name, format_td(inactive)
+                f"Culling server {log_name} (inactive for {format_td(inactive)})"
             )
 
         if max_age and not should_cull:
@@ -272,14 +271,18 @@ async def cull_idle(
             # for starting again or stopped and removed. To remove the named
             # server we have to pass an additional option in the body of our
             # DELETE request.
-            delete_url = url + "/users/%s/servers/%s" % (
+            delete_url = "{}/users/{}/servers/{}".format(
+                url,
                 quote(user["name"]),
                 quote(server["name"]),
             )
             if remove_named_servers:
                 body = json.dumps({"remove": True})
         else:
-            delete_url = url + "/users/%s/server" % quote(user["name"])
+            delete_url = "{}/users/{}/server".format(
+                url,
+                quote(user["name"]),
+            )
 
         req = HTTPRequest(
             url=delete_url,
@@ -290,7 +293,7 @@ async def cull_idle(
         )
         resp = await fetch(req)
         if resp.code == 202:
-            app_log.warning("Server %s is slow to stop", log_name)
+            app_log.warning(f"Server {log_name} is slow to stop")
             # return False to prevent culling user with pending shutdowns
             return False
         return True
@@ -365,7 +368,7 @@ async def cull_idle(
         ) and (cull_admin_users or not user_is_admin)
 
         if should_cull:
-            app_log.info("Culling user %s (inactive for %s)", user["name"], inactive)
+            app_log.info(f"Culling user {user['name']} " f"(inactive for {inactive})")
 
         if max_age and not should_cull:
             # only check created if max_age is specified
@@ -373,24 +376,20 @@ async def cull_idle(
             # which doesn't define the 'started' field
             if age is not None and age.total_seconds() >= max_age:
                 app_log.info(
-                    "Culling user %s (age: %s, inactive for %s)",
-                    user["name"],
-                    format_td(age),
-                    format_td(inactive),
+                    f"Culling user {user['name']} "
+                    f"(age: {format_td(age)}, inactive for {format_td(inactive)})"
                 )
                 should_cull = True
 
         if not should_cull:
             app_log.debug(
-                "Not culling user %s (created: %s, last active: %s)",
-                user["name"],
-                format_td(age),
-                format_td(inactive),
+                f"Not culling user {user['name']} "
+                f"(created: {format_td(age)}, last active: {format_td(inactive)})"
             )
             return False
 
         req = HTTPRequest(
-            url=url + "/users/%s" % user["name"], method="DELETE", headers=auth_header
+            url=f"{url}/users/{user['name']}", method="DELETE", headers=auth_header
         )
         await fetch(req)
         return True
@@ -401,11 +400,10 @@ async def cull_idle(
     if api_page_size:
         params["limit"] = str(api_page_size)
 
-    users_url = url + "/users"
-
     # If we filter users by state=ready then we do not get back any which
     # are inactive, so if we're also culling users get the set of users which
     # are inactive and see if they should be culled as well.
+    users_url = f"{url}/users"
     if state_filter and cull_users:
         inactive_params = {"state": "inactive"}
         inactive_params.update(params)
@@ -429,15 +427,16 @@ async def cull_idle(
         n_users += 1
         futures.append((user["name"], handle_user(user)))
 
-    app_log.debug(
-        "Got %d users%s", n_users, (" with ready servers" if state_filter else "")
-    )
+    if state_filter:
+        app_log.debug(f"Got {n_users} users with ready servers")
+    else:
+        app_log.debug(f"Got {n_users} users")
 
     for name, f in futures:
         try:
             result = await f
         except Exception:
-            app_log.exception("Error processing %s", name)
+            app_log.exception(f"Error processing {name}")
         else:
             if result:
                 app_log.debug("Finished culling %s", name)
@@ -572,9 +571,8 @@ def main():
         AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
     except ImportError as e:
         app_log.warning(
-            "Could not load pycurl: %s\n"
-            "pycurl is recommended if you have a large number of users.",
-            e,
+            f"Could not load pycurl: {e}\n"
+            "pycurl is recommended if you have a large number of users."
         )
 
     loop = IOLoop.current()

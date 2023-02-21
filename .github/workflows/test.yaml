@@ -5,44 +5,52 @@ name: Test
 
 on:
   pull_request:
+    paths-ignore:
+      - "**.md"
+      - ".github/workflows/*"
+      - "!.github/workflows/test.yaml"
   push:
+    paths-ignore:
+      - "**.md"
+      - ".github/workflows/*"
+      - "!.github/workflows/test.yaml"
+    branches-ignore:
+      - "dependabot/**"
+      - "pre-commit-ci-update-config"
+    tags:
+      - "**"
   workflow_dispatch:
 
 jobs:
-  pre-commit:
-    name: Run pre-commit
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: pre-commit/action@v2.0.0
-
   pytest:
-    name: "Run tests"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - python-version: 3.6
-            jupyterhub-version: 1.3.*
-          - python-version: 3.7
+          - python-version: "3.7"
             jupyterhub-version: 1.*
-          - python-version: 3.8
+            sqlalchemy-version: 1.*
+          - python-version: "3.8"
             jupyterhub-version: 2.0.*
-          - python-version: 3.9
+            sqlalchemy-version: 1.*
+          - python-version: "3.9"
             jupyterhub-version: 2.*
+            sqlalchemy-version: 1.*
+          - python-version: "3.10"
+            jupyterhub-version: 3.0.*
+            sqlalchemy-version: 1.*
+          - python-version: "3.11"
+            jupyterhub-version: 3.*
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: "${{ matrix.python-version}}"
-
-      - name: Install Node
-        uses: actions/setup-node@v1
+          python-version: "${{ matrix.python-version }}"
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "18"
 
       - name: Install configurable-http-proxy
         run: |
@@ -50,22 +58,23 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install -e . -r dev-requirements.txt
+          pip install -e ".[test]"
 
       - name: Install specified jupyterhub version
         if: ${{ matrix.jupyterhub-version }}
         run: |
           pip install --pre jupyterhub==${{ matrix.jupyterhub-version }}
+      - name: Install specified sqlalchemy version
+        if: ${{ matrix.sqlalchemy-version }}
+        run: |
+          pip install sqlalchemy==${{ matrix.sqlalchemy-version }}
 
-      - name: Show environment
+      - name: List Python dependencies
         run: |
           pip freeze
 
       - name: Run tests
-        continue-on-error: ${{ matrix.accept-failure == true }}
         run: |
-          pytest -v --maxfail=2 --color=yes --cov jupyterhub_idle_culler
+          pytest --maxfail=2 --cov=jupyterhub_idle_culler
 
-      - name: Publish coverage
-        run: |
-          codecov
+      - uses: codecov/codecov-action@v3
