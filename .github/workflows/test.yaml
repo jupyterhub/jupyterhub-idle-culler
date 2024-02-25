@@ -52,7 +52,7 @@ jobs:
           python-version: "${{ matrix.python-version }}"
       - uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "lts/*"
 
       - name: Install configurable-http-proxy
         run: |
