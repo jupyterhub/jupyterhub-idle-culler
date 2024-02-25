@@ -79,4 +79,4 @@ jobs:
         run: |
           pytest --maxfail=2
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
