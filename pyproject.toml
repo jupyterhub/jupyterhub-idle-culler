@@ -96,7 +96,7 @@ profile = "black"
 # ref: https://docs.pytest.org/en/stable/
 #
 [tool.pytest.ini_options]
-addopts = "--verbose --color=yes --durations=10"
+addopts = "--verbose --color=yes --durations=10 --cov=jupyterhub_idle_culler"
 asyncio_mode = "auto"
 
 

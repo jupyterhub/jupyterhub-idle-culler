@@ -77,6 +77,6 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest --maxfail=2 --cov=jupyterhub_idle_culler
+          pytest --maxfail=2
 
       - uses: codecov/codecov-action@v3
