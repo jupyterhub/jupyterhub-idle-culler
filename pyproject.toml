@@ -69,20 +69,6 @@ remove-duplicate-keys = true
 remove-unused-variables = true
 
 
-# black is used for autoformatting Python code
-#
-# ref: https://black.readthedocs.io/en/stable/
-#
-[tool.black]
-target_version = [
-    "py37",
-    "py38",
-    "py39",
-    "py310",
-    "py311",
-]
-
-
 # isort is used for autoformatting Python code
 #
 # ref: https://pycqa.github.io/isort/
