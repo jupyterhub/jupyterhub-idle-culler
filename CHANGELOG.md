@@ -3,6 +3,37 @@
 This changelog is maintained manually with assistance of
 [`github-activity`](https://github.com/executablebooks/github-activity).
 
+## 1.3
+
+### 1.3.0 - 2024-02-26
+
+`jupyterhub-idle-culler` now functions with Python 3.12.
+
+#### Bugs fixed
+
+- fix type of request_timeout when $JUPYTERHUB_REQUEST_TIMEOUT is set [#49](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/49) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio))
+
+#### Maintenance and upkeep improvements
+
+- Add dependabot to bump github actions and misc ci updates [#65](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/65) ([@consideRatio](https://github.com/consideRatio))
+- maint: require py37, fix tests, use pyupgrade/isort/autoflake, use pyproject.toml, more f-strings [#58](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/58) ([@consideRatio](https://github.com/consideRatio), [@yuvipanda](https://github.com/yuvipanda), [@minrk](https://github.com/minrk), [@manics](https://github.com/manics))
+- Add a test [#39](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/39) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio))
+
+#### Documentation improvements
+
+- Refresh README.md [#57](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/57) ([@consideRatio](https://github.com/consideRatio), [@minrk](https://github.com/minrk))
+- docs: fix typo in README.md [#54](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/54) ([@jincheng9](https://github.com/jincheng9), [@consideRatio](https://github.com/consideRatio))
+- docs: fix omission of required read:servers scope [#41](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/41) ([@consideRatio](https://github.com/consideRatio), [@minrk](https://github.com/minrk))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/jupyterhub-idle-culler/graphs/contributors?from=2021-10-15&to=2024-02-26&type=c))
+
+@consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2021-10-15..2024-02-26&type=Issues)) | @jincheng9 ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ajincheng9+updated%3A2021-10-15..2024-02-26&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Amanics+updated%3A2021-10-15..2024-02-26&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2021-10-15..2024-02-26&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2021-10-15..2024-02-26&type=Issues))
+
 ## 1.2
 
 ### 1.2.1 - 2021-10-15
