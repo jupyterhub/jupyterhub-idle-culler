@@ -5,6 +5,25 @@ This changelog is maintained manually with assistance of
 
 ## 1.3
 
+### 1.3.1 - 2024-02-26
+
+Fixes missing dependency on `packaging` in 1.3.0.
+
+([full changelog](https://github.com/jupyterhub/jupyterhub-idle-culler/compare/1.3.0...1.3.1))
+
+#### Bugs fixed
+
+- missing dependency on packaging [#70](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/70) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/jupyterhub-idle-culler/graphs/contributors?from=2024-02-26&to=2024-02-26&type=c))
+
+@consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2024-02-26..2024-02-26&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2024-02-26..2024-02-26&type=Issues))
+
 ### 1.3.0 - 2024-02-26
 
 `jupyterhub-idle-culler` now functions with Python 3.12.
