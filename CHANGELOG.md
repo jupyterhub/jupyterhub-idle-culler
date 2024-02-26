@@ -5,6 +5,14 @@ This changelog is maintained manually with assistance of
 
 ## 1.3
 
+### 1.3.1 - 2024-02-26
+
+([full changelog](https://github.com/jupyterhub/jupyterhub-idle-culler/compare/1.3.0...1.3.1))
+
+#### Bugs fixed
+
+- missing dependency on packaging [#70](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/70) ([@minrk](https://github.com/minrk), [@consideRatio](https://github.com/consideRatio))
+
 ### 1.3.0 - 2024-02-26
 
 `jupyterhub-idle-culler` now functions with Python 3.12.
