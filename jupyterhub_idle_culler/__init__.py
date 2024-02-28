@@ -20,7 +20,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import app_log
 from tornado.options import define, options, parse_command_line
 
-__version__ = "1.3.1"
+__version__ = "1.3.2.dev"
 
 STATE_FILTER_MIN_VERSION = V("1.3.0")
 
