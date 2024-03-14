@@ -87,6 +87,8 @@ async def cull_idle(
     internal_certs_location="",
     cull_admin_users=True,
     api_page_size=0,
+    cull_default_servers=True,
+    cull_named_servers=True,
 ):
     """Shutdown idle single-user servers
 
@@ -235,7 +237,7 @@ async def cull_idle(
         # inactive_limit = server['state']['culltime']
 
         should_cull = (
-            inactive is not None and inactive.total_seconds() >= inactive_limit
+            inactive is not None and inactive.total_seconds() >= inactive_limit and ((cull_default_servers and server_name == "") or (cull_named_servers and server_name))
         )
         if should_cull:
             app_log.info(
@@ -561,6 +563,26 @@ def main():
             """
         ).strip(),
     )
+    define(
+        "cull_default_servers",
+        type=bool,
+        default=True,
+        help=dedent(
+            """
+            Whether default servers should be culled (only if --cull-default-servers=true).
+            """
+        ).strip(),
+    )
+    define(
+        "cull_named_servers",
+        type=bool,
+        default=True,
+        help=dedent(
+            """
+            Whether named servers should be culled (only if --cull-named-servers=true).
+            """
+        ).strip(),
+    )
 
     parse_command_line()
     if not options.cull_every:
@@ -589,6 +611,8 @@ def main():
         internal_certs_location=options.internal_certs_location,
         cull_admin_users=options.cull_admin_users,
         api_page_size=options.api_page_size,
+        cull_default_servers=options.cull_default_servers,
+        cull_named_servers=options.cull_named_servers,
     )
     # schedule first cull immediately
     # because PeriodicCallback doesn't start until the end of the first interval
