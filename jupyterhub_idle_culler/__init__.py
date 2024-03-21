@@ -237,7 +237,12 @@ async def cull_idle(
         # inactive_limit = server['state']['culltime']
 
         should_cull = (
-            inactive is not None and inactive.total_seconds() >= inactive_limit and ((cull_default_servers and server_name == "") or (cull_named_servers and server_name))
+            inactive is not None
+            and inactive.total_seconds() >= inactive_limit
+            and (
+                (cull_default_servers and server_name == "")
+                or (cull_named_servers and server_name)
+            )
         )
         if should_cull:
             app_log.info(
