@@ -135,6 +135,10 @@ python3 -m jupyterhub_idle_culler [--timeout=900] [--url=http://localhost:8081/h
                                    if --cull-users=true). (default True)
   --cull-every                     The interval (in seconds) for checking for
                                    idle servers to cull. (default 0)
+  --cull-default-servers           Whether default servers should be culled (only
+                                   if --cull-default-servers=true). (default True)
+  --cull-named-servers             Whether named servers should be culled (only
+                                   if --cull-named-servers=true). (default True)
   --cull-users                     Cull users in addition to servers.  This is
                                    for use in temporary-user cases such as
                                    tmpnb. (default False)
