@@ -23,7 +23,7 @@ on:
 
 jobs:
   pytest:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
@@ -31,19 +31,24 @@ jobs:
           - python-version: "3.7"
             jupyterhub-version: 1.*
             sqlalchemy-version: 1.*
+            runs-on: ubuntu-22.04
           - python-version: "3.8"
-            jupyterhub-version: 2.0.*
-            sqlalchemy-version: 1.*
-          - python-version: "3.9"
             jupyterhub-version: 2.*
             sqlalchemy-version: 1.*
-          - python-version: "3.10"
+            runs-on: ubuntu-22.04
+          - python-version: "3.9"
             jupyterhub-version: 3.0.*
             sqlalchemy-version: 1.*
-          - python-version: "3.11"
+            runs-on: ubuntu-latest
+          - python-version: "3.10"
             jupyterhub-version: 3.*
-          - python-version: "3.12"
+            runs-on: ubuntu-latest
+          - python-version: "3.11"
             jupyterhub-version: 4.*
+            runs-on: ubuntu-latest
+          - python-version: "3.12"
+            jupyterhub-version: 5.*
+            runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
