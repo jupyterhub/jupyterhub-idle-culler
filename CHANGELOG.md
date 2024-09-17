@@ -3,6 +3,29 @@
 This changelog is maintained manually with assistance of
 [`github-activity`](https://github.com/executablebooks/github-activity).
 
+## 1.4
+
+### 1.4.0 - 2024-09-17
+
+([full changelog](https://github.com/jupyterhub/jupyterhub-idle-culler/compare/1.3.1...1.4.0))
+
+#### New features added
+
+- add options to cull named servers and default servers separately [#74](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/74) ([@HCharlie](https://github.com/HCharlie), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Continuous integration improvements
+
+- ci: test against jupyterhub 5 [#80](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/80) ([@consideRatio](https://github.com/consideRatio))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/jupyterhub-idle-culler/graphs/contributors?from=2024-02-28&to=2024-09-17&type=c))
+
+@consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2024-02-28..2024-09-17&type=Issues)) | @HCharlie ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AHCharlie+updated%3A2024-02-28..2024-09-17&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2024-02-28..2024-09-17&type=Issues))
+
 ## 1.3
 
 ### 1.3.1 - 2024-02-26
