@@ -704,6 +704,7 @@ class IdleCuller(Application):
         except KeyboardInterrupt:
             pass
 
+
 def main():
     IdleCuller.launch_instance()
 
