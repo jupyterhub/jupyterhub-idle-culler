@@ -7,6 +7,7 @@ import asyncio
 import json
 import os
 import ssl
+import sys
 from datetime import datetime, timezone
 from functools import partial
 from textwrap import dedent
@@ -18,7 +19,8 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import app_log
-from tornado.options import define, options, parse_command_line
+from traitlets import Bool, Int, Unicode, default
+from traitlets.config import Application
 
 __version__ = "1.4.1.dev"
 
@@ -452,74 +454,23 @@ async def cull_idle(
                 app_log.debug("Finished culling %s", name)
 
 
-def main():
-    define(
-        "url",
-        default=os.environ.get("JUPYTERHUB_API_URL"),
-        help=dedent(
-            """
-            The JupyterHub API URL.
-            """
-        ).strip(),
-    )
-    define(
-        "timeout",
-        type=int,
-        default=600,
-        help=dedent(
-            """
-            The idle timeout (in seconds).
-            """
-        ).strip(),
-    )
-    define(
-        "cull_every",
-        type=int,
-        default=0,
-        help=dedent(
-            """
-            The interval (in seconds) for checking for idle servers to cull.
-            """
-        ).strip(),
-    )
-    define(
-        "max_age",
-        type=int,
-        default=0,
-        help=dedent(
-            """
-            The maximum age (in seconds) of servers that should be culled even if they are active.
-            """
-        ).strip(),
-    )
-    define(
-        "cull_users",
-        type=bool,
-        default=False,
-        help=dedent(
-            """
-            Cull users in addition to servers.
+class IdleCuller(Application):
 
-            This is for use in temporary-user cases such as tmpnb.
-            """
-        ).strip(),
-    )
-    define(
-        "remove_named_servers",
-        default=False,
-        type=bool,
+    api_page_size = Int(
+        0,
         help=dedent(
             """
-            Remove named servers in addition to stopping them.
-
-            This is useful for a BinderHub that uses authentication and named servers.
+            Number of users to request per page,
+            when using JupyterHub 2.0's paginated user list API.
+            Default: user the server-side default configured page size.
             """
         ).strip(),
+    ).tag(
+        config=True,
     )
-    define(
-        "concurrency",
-        type=int,
-        default=10,
+
+    concurrency = Int(
+        10,
         help=dedent(
             """
             Limit the number of concurrent requests made to the Hub.
@@ -528,110 +479,233 @@ def main():
             so limit the number of API requests we have outstanding at any given time.
             """
         ).strip(),
+    ).tag(
+        config=True,
     )
-    define(
-        "ssl_enabled",
-        type=bool,
-        default=False,
+
+    config_file = Unicode(
+        "idle_culler_config.py",
         help=dedent(
             """
-            Whether the Jupyter API endpoint has TLS enabled.
+            Config file to load.
             """
         ).strip(),
+    ).tag(
+        config=True,
     )
-    define(
-        "internal_certs_location",
-        type=str,
-        default="internal-ssl",
-        help=dedent(
-            """
-            The location of generated internal-ssl certificates (only needed with --ssl-enabled=true).
-            """
-        ).strip(),
-    )
-    define(
-        "cull_admin_users",
-        type=bool,
-        default=True,
+
+    cull_admin_users = Bool(
+        True,
         help=dedent(
             """
             Whether admin users should be culled (only if --cull-users=true).
             """
         ).strip(),
+    ).tag(
+        config=True,
     )
-    define(
-        "api_page_size",
-        type=int,
-        default=0,
-        help=dedent(
-            """
-            Number of users to request per page,
-            when using JupyterHub 2.0's paginated user list API.
-            Default: user the server-side default configured page size.
-            """
-        ).strip(),
-    )
-    define(
-        "cull_default_servers",
-        type=bool,
-        default=True,
+
+    cull_default_servers = Bool(
+        True,
         help=dedent(
             """
             Whether default servers should be culled (only if --cull-default-servers=true).
             """
         ).strip(),
+    ).tag(
+        config=True,
     )
-    define(
-        "cull_named_servers",
-        type=bool,
-        default=True,
+
+    cull_every = Int(
+        0,
+        help=dedent(
+            """
+            The interval (in seconds) for checking for idle servers to cull.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    @default("cull_every")
+    def _default_cull_every(self):
+        return self.timeout // 2
+
+    cull_named_servers = Bool(
+        True,
         help=dedent(
             """
             Whether named servers should be culled (only if --cull-named-servers=true).
             """
         ).strip(),
+    ).tag(
+        config=True,
     )
 
-    parse_command_line()
-    if not options.cull_every:
-        options.cull_every = options.timeout // 2
-    api_token = os.environ["JUPYTERHUB_API_TOKEN"]
+    cull_users = Bool(
+        False,
+        help=dedent(
+            """
+            Cull users in addition to servers.
 
-    try:
-        AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
-    except ImportError as e:
-        app_log.warning(
-            f"Could not load pycurl: {e}\n"
-            "pycurl is recommended if you have a large number of users."
+            This is for use in temporary-user cases such as tmpnb.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    generate_config = Bool(
+        False,
+        help=dedent(
+            """
+            Generate default config file.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    internal_certs_location = Unicode(
+        "internal-ssl",
+        help=dedent(
+            """
+            The location of generated internal-ssl certificates (only needed with --ssl-enabled=true).
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    max_age = Int(
+        0,
+        help=dedent(
+            """
+            The maximum age (in seconds) of servers that should be culled even if they are active.",
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    remove_named_servers = Bool(
+        False,
+        help=dedent(
+            """
+            Remove named servers in addition to stopping them.
+
+            This is useful for a BinderHub that uses authentication and named servers.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    ssl_enabled = Bool(
+        False,
+        help=dedent(
+            """
+            Whether the Jupyter API endpoint has TLS enabled.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    timeout = Int(
+        600,
+        help=dedent(
+            """
+            The idle timeout (in seconds).
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    url = Unicode(
+        os.environ.get("JUPYTERHUB_API_URL"),
+        help=dedent(
+            """
+            The JupyterHub API URL.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
+    aliases = {
+        "api-page-size": "IdleCuller.api_page_size",
+        "concurrency": "IdleCuller.concurrency",
+        "cull-admin-users": "IdleCuller.cull_admin_users",
+        "cull-default-servers": "IdleCuller.cull_default_servers",
+        "cull-every": "IdleCuller.cull_every",
+        "cull-named-servers": "IdleCuller.cull_named_servers",
+        "cull-users": "IdleCuller.cull_users",
+        "internal-certs-location": "IdleCuller.internal_certs_location",
+        "max-age": "IdleCuller.max_age",
+        "remove-named-servers": "IdleCuller.remove_named_servers",
+        "ssl-enabled": "IdleCuller.ssl_enabled",
+        "timeout": "IdleCuller.timeout",
+        "url": "IdleCuller.url",
+    }
+
+    flags = {
+        "generate-config": (
+            {"IdleCuller": {"generate_config": True}},
+            generate_config.help,
         )
+    }
 
-    loop = IOLoop.current()
-    cull = partial(
-        cull_idle,
-        url=options.url,
-        api_token=api_token,
-        inactive_limit=options.timeout,
-        cull_users=options.cull_users,
-        remove_named_servers=options.remove_named_servers,
-        max_age=options.max_age,
-        concurrency=options.concurrency,
-        ssl_enabled=options.ssl_enabled,
-        internal_certs_location=options.internal_certs_location,
-        cull_admin_users=options.cull_admin_users,
-        api_page_size=options.api_page_size,
-        cull_default_servers=options.cull_default_servers,
-        cull_named_servers=options.cull_named_servers,
-    )
-    # schedule first cull immediately
-    # because PeriodicCallback doesn't start until the end of the first interval
-    loop.add_callback(cull)
-    # schedule periodic cull
-    pc = PeriodicCallback(cull, 1e3 * options.cull_every)
-    pc.start()
-    try:
-        loop.start()
-    except KeyboardInterrupt:
-        pass
+    def start(self):
+
+        if self.generate_config:
+            print(self.generate_config_file())
+            sys.exit(0)
+
+        if self.config_file:
+            self.load_config_file(self.config_file)
+
+        api_token = os.environ["JUPYTERHUB_API_TOKEN"]
+
+        try:
+            AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+        except ImportError as e:
+            app_log.warning(
+                f"Could not load pycurl: {e}\n"
+                "pycurl is recommended if you have a large number of users."
+            )
+
+        loop = IOLoop.current()
+        cull = partial(
+            cull_idle,
+            url=self.url,
+            api_token=api_token,
+            inactive_limit=self.timeout,
+            cull_users=self.cull_users,
+            remove_named_servers=self.remove_named_servers,
+            max_age=self.max_age,
+            concurrency=self.concurrency,
+            ssl_enabled=self.ssl_enabled,
+            internal_certs_location=self.internal_certs_location,
+            cull_admin_users=self.cull_admin_users,
+            api_page_size=self.api_page_size,
+            cull_default_servers=self.cull_default_servers,
+            cull_named_servers=self.cull_named_servers,
+        )
+        # schedule first cull immediately
+        # because PeriodicCallback doesn't start until the end of the first interval
+        loop.add_callback(cull)
+        # schedule periodic cull
+        pc = PeriodicCallback(cull, 1e3 * self.cull_every)
+        pc.start()
+        try:
+            loop.start()
+        except KeyboardInterrupt:
+            pass
+
+def main():
+    IdleCuller.launch_instance()
 
 
 if __name__ == "__main__":
