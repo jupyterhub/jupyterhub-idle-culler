@@ -3,6 +3,7 @@ from datetime import timedelta
 from subprocess import check_output
 from unittest import mock
 
+from tornado.log import app_log
 from jupyterhub_idle_culler import utcnow
 
 
@@ -32,7 +33,7 @@ async def test_cull_idle(cull_idle, start_users, admin_request):
     assert await count_active_users(admin_request) == 0
     await start_users(3)
     assert await count_active_users(admin_request) == 3
-    await cull_idle(inactive_limit=300)
+    await cull_idle(inactive_limit=300, logger=app_log)
     # no change
     assert await count_active_users(admin_request) == 3
 
@@ -40,7 +41,7 @@ async def test_cull_idle(cull_idle, start_users, admin_request):
     with mock.patch(
         "jupyterhub_idle_culler.utcnow", lambda: utcnow() + timedelta(seconds=600)
     ):
-        await cull_idle(inactive_limit=300)
+        await cull_idle(inactive_limit=300, logger=app_log)
     assert await count_active_users(admin_request) == 0
 
 

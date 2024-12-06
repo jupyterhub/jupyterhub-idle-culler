@@ -5,6 +5,7 @@ Monitor & Cull idle single-user servers and users
 
 import asyncio
 import json
+import logging
 import os
 import ssl
 import sys
@@ -18,7 +19,7 @@ from packaging.version import Version as V
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
-from tornado.log import app_log
+from tornado.log import LogFormatter
 from traitlets import Bool, Int, Unicode, default
 from traitlets.config import Application
 
@@ -81,6 +82,7 @@ async def cull_idle(
     url,
     api_token,
     inactive_limit,
+    logger,
     cull_users=False,
     remove_named_servers=False,
     max_age=0,
@@ -109,8 +111,8 @@ async def cull_idle(
             f"{internal_certs_location}/hub-ca/hub-ca.crt",
         )
 
-        app_log.debug("ssl_enabled is Enabled: %s", ssl_enabled)
-        app_log.debug("internal_certs_location is %s", internal_certs_location)
+        logger.debug("ssl_enabled is Enabled: %s", ssl_enabled)
+        logger.debug("internal_certs_location is %s", internal_certs_location)
         defaults["ssl_options"] = ssl_context
 
     AsyncHTTPClient.configure(None, defaults=defaults)
@@ -155,7 +157,7 @@ async def cull_idle(
                 next_info = resp_model["_pagination"]["next"]
                 if next_info:
                     page_no += 1
-                    app_log.info(f"Fetching page {page_no} {next_info['url']}")
+                    logger.info(f"Fetching page {page_no} {next_info['url']}")
                     # submit next request
                     req.url = next_info["url"]
                     resp_future = asyncio.ensure_future(fetch(req))
@@ -164,7 +166,7 @@ async def cull_idle(
                 item_count += 1
                 yield item
 
-        app_log.debug(f"Fetched {item_count} items from {url} in {page_no} pages")
+        logger.debug(f"Fetched {item_count} items from {url} in {page_no} pages")
 
     # Starting with jupyterhub 1.3.0 the users can be filtered in the server
     # using the `state` filter parameter. "ready" means all users who have any
@@ -189,7 +191,7 @@ async def cull_idle(
         if server_name:
             log_name = f"{user['name']}/{server_name}"
         if server.get("pending"):
-            app_log.warning(
+            logger.warning(
                 f"Not culling server {log_name} with pending {server['pending']}"
             )
             return False
@@ -202,7 +204,7 @@ async def cull_idle(
         # but let's check just to be safe.
 
         if not server.get("ready", bool(server["url"])):
-            app_log.warning(
+            logger.warning(
                 f"Not culling not-ready not-pending server {log_name}: {server}"
             )
             return False
@@ -250,7 +252,7 @@ async def cull_idle(
             )
         )
         if should_cull:
-            app_log.info(
+            logger.info(
                 f"Culling server {log_name} (inactive for {format_td(inactive)})"
             )
 
@@ -259,7 +261,7 @@ async def cull_idle(
             # so that we can still be compatible with jupyterhub 0.8
             # which doesn't define the 'started' field
             if age is not None and age.total_seconds() >= max_age:
-                app_log.info(
+                logger.info(
                     "Culling server %s (age: %s, inactive for %s)",
                     log_name,
                     format_td(age),
@@ -268,7 +270,7 @@ async def cull_idle(
                 should_cull = True
 
         if not should_cull:
-            app_log.debug(
+            logger.debug(
                 "Not culling server %s (age: %s, inactive for %s)",
                 log_name,
                 format_td(age),
@@ -305,7 +307,7 @@ async def cull_idle(
         )
         resp = await fetch(req)
         if resp.code == 202:
-            app_log.warning(f"Server {log_name} is slow to stop")
+            logger.warning(f"Server {log_name} is slow to stop")
             # return False to prevent culling user with pending shutdowns
             return False
         return True
@@ -349,7 +351,7 @@ async def cull_idle(
         # some servers are still running, cannot cull users
         still_alive = len(results) - sum(results)
         if still_alive:
-            app_log.debug(
+            logger.debug(
                 "Not culling user %s with %i servers still alive",
                 user["name"],
                 still_alive,
@@ -380,21 +382,21 @@ async def cull_idle(
         ) and (cull_admin_users or not user_is_admin)
 
         if should_cull:
-            app_log.info(f"Culling user {user['name']} " f"(inactive for {inactive})")
+            logger.info(f"Culling user {user['name']} " f"(inactive for {inactive})")
 
         if max_age and not should_cull:
             # only check created if max_age is specified
             # so that we can still be compatible with jupyterhub 0.8
             # which doesn't define the 'started' field
             if age is not None and age.total_seconds() >= max_age:
-                app_log.info(
+                logger.info(
                     f"Culling user {user['name']} "
                     f"(age: {format_td(age)}, inactive for {format_td(inactive)})"
                 )
                 should_cull = True
 
         if not should_cull:
-            app_log.debug(
+            logger.debug(
                 f"Not culling user {user['name']} "
                 f"(created: {format_td(age)}, last active: {format_td(inactive)})"
             )
@@ -424,7 +426,7 @@ async def cull_idle(
         async for user in fetch_paginated(req):
             n_idle += 1
             futures.append((user["name"], handle_user(user)))
-        app_log.debug(f"Got {n_idle} users with inactive servers")
+        logger.debug(f"Got {n_idle} users with inactive servers")
 
     if state_filter:
         params["state"] = "ready"
@@ -440,18 +442,18 @@ async def cull_idle(
         futures.append((user["name"], handle_user(user)))
 
     if state_filter:
-        app_log.debug(f"Got {n_users} users with ready servers")
+        logger.debug(f"Got {n_users} users with ready servers")
     else:
-        app_log.debug(f"Got {n_users} users")
+        logger.debug(f"Got {n_users} users")
 
     for name, f in futures:
         try:
             result = await f
         except Exception:
-            app_log.exception(f"Error processing {name}")
+            logger.exception(f"Error processing {name}")
         else:
             if result:
-                app_log.debug("Finished culling %s", name)
+                logger.debug("Finished culling %s", name)
 
 
 class IdleCuller(Application):
@@ -577,6 +579,22 @@ class IdleCuller(Application):
         config=True,
     )
 
+    _log_formatter_cls = LogFormatter
+
+    @default('log_level')
+    def _log_level_default(self):
+        return logging.INFO
+
+    @default('log_datefmt')
+    def _log_datefmt_default(self):
+        """Exclude date from default date format"""
+        return "%Y-%m-%d %H:%M:%S"
+
+    @default('log_format')
+    def _log_format_default(self):
+        """override default log format to include time"""
+        return "%(color)s[%(levelname)1.1s %(asctime)s.%(msecs).03d %(name)s %(module)s:%(lineno)d]%(end_color)s %(message)s"
+
     max_age = Int(
         0,
         help=dedent(
@@ -671,7 +689,7 @@ class IdleCuller(Application):
         try:
             AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
         except ImportError as e:
-            app_log.warning(
+            self.log.warning(
                 f"Could not load pycurl: {e}\n"
                 "pycurl is recommended if you have a large number of users."
             )
@@ -682,6 +700,7 @@ class IdleCuller(Application):
             url=self.url,
             api_token=api_token,
             inactive_limit=self.timeout,
+            logger=self.log,
             cull_users=self.cull_users,
             remove_named_servers=self.remove_named_servers,
             max_age=self.max_age,
