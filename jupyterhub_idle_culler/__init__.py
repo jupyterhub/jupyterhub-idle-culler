@@ -581,16 +581,16 @@ class IdleCuller(Application):
 
     _log_formatter_cls = LogFormatter
 
-    @default('log_level')
+    @default("log_level")
     def _log_level_default(self):
         return logging.INFO
 
-    @default('log_datefmt')
+    @default("log_datefmt")
     def _log_datefmt_default(self):
         """Exclude date from default date format"""
         return "%Y-%m-%d %H:%M:%S"
 
-    @default('log_format')
+    @default("log_format")
     def _log_format_default(self):
         """override default log format to include time"""
         return "%(color)s[%(levelname)1.1s %(asctime)s.%(msecs).03d %(name)s %(module)s:%(lineno)d]%(end_color)s %(message)s"

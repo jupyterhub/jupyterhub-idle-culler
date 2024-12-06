@@ -4,6 +4,7 @@ from subprocess import check_output
 from unittest import mock
 
 from tornado.log import app_log
+
 from jupyterhub_idle_culler import utcnow
 
 
