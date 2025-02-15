@@ -643,6 +643,7 @@ class IdleCuller(Application):
 
     url = Unicode(
         os.environ.get("JUPYTERHUB_API_URL"),
+        allow_none=True,
         help=dedent(
             """
             The JupyterHub API URL.
