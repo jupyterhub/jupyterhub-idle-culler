@@ -656,7 +656,7 @@ class IdleCuller(Application):
     aliases = {
         "api-page-size": "IdleCuller.api_page_size",
         "concurrency": "IdleCuller.concurrency",
-        "config-file": "IdleCuller.config_file",
+        "config": "IdleCuller.config_file",
         "cull-admin-users": "IdleCuller.cull_admin_users",
         "cull-default-servers": "IdleCuller.cull_default_servers",
         "cull-every": "IdleCuller.cull_every",
