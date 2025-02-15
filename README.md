@@ -131,6 +131,8 @@ python3 -m jupyterhub_idle_culler [--timeout=900] [--url=http://localhost:8081/h
                                    same time can slow down the Hub, so limit
                                    the number of API requests we have
                                    outstanding at any given time. (default 10)
+  --config                         Service configuration file to load.
+                                   (default idle_culler_config.py)
   --cull-admin-users               Whether admin users should be culled (only
                                    if --cull-users=true). (default True)
   --cull-every                     The interval (in seconds) for checking for
