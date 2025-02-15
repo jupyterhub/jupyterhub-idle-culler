@@ -28,6 +28,7 @@ dependencies = [
     "tornado",
     "packaging",
     "python-dateutil",
+    "traitlets",
 ]
 dynamic = ["version"]
 
