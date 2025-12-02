@@ -20,7 +20,7 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import LogFormatter
-from traitlets import Bool, Int, Unicode, default
+from traitlets import Bool, Callable, Int, Unicode, default
 from traitlets.config import Application
 
 __version__ = "1.4.1.dev"
@@ -78,6 +78,11 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+def default_cull_arbiter(inactive, inactive_limit, server):
+    """Return True if time inactive exceeds limit, the classic cull check."""
+    return inactive.total_seconds() >= inactive_limit
+
+
 async def cull_idle(
     url,
     api_token,
@@ -93,6 +98,7 @@ async def cull_idle(
     api_page_size=0,
     cull_default_servers=True,
     cull_named_servers=True,
+    cull_arbiter=default_cull_arbiter,
 ):
     """Shutdown idle single-user servers
 
@@ -226,26 +232,12 @@ async def cull_idle(
             # for running servers
             inactive = age
 
-        # CUSTOM CULLING TEST CODE HERE
-        # Add in additional server tests here.  Return False to mean "don't
-        # cull", True means "cull immediately", or, for example, update some
-        # other variables like inactive_limit.
-        #
-        # Here, server['state'] is the result of the get_state method
-        # on the spawner.  This does *not* contain the below by
-        # default, you may have to modify your spawner to make this
-        # work.  The `user` variable is the user model from the API.
-        #
-        # if server['state']['profile_name'] == 'unlimited'
-        #     return False
-        # inactive_limit = server['state']['culltime']
-
         is_default_server = server_name == ""
         is_named_server = server_name != ""
 
         should_cull = (
             inactive is not None
-            and inactive.total_seconds() >= inactive_limit
+            and cull_arbiter(inactive, inactive_limit, server)
             and (
                 (cull_default_servers and is_default_server)
                 or (cull_named_servers and is_named_server)
@@ -518,6 +510,35 @@ class IdleCuller(Application):
         config=True,
     )
 
+    cull_arbiter_hook = Callable(
+        None,
+        allow_none=True,
+        help=dedent(
+            """
+            Enable custom culling logic.
+
+            By default, the idle culler compares a server's time since last
+            activity with a specified idle time limit.  This hook allows for
+            additional or more arbitrary logic when deciding whether to cull a
+            server or not.  To customize culling logic, define a callable taking
+            3 arguments:
+
+                def my_cull_arbiter(inactive, inactive_limit, server):
+                    if server['state']['profile_name'] == 'unlimited':
+                        return False
+                    return inactive.total_seconds() >= inactive_limit
+                c.IdleCuller.cull_arbiter_hook = my_cull_arbiter
+
+            This callable should return True if the server should be culled, and
+            False if it should not.  In this example, servers with a profile
+            name of "unlimited" are never culled, but all others are subject to
+            the default time limit logic.
+            """
+        ).strip(),
+    ).tag(
+        config=True,
+    )
+
     cull_every = Int(
         0,
         help=dedent(
@@ -688,6 +709,8 @@ class IdleCuller(Application):
 
         api_token = os.environ["JUPYTERHUB_API_TOKEN"]
 
+        cull_arbiter = self.cull_arbiter_hook or default_cull_arbiter
+
         try:
             AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
         except ImportError as e:
@@ -713,6 +736,7 @@ class IdleCuller(Application):
             api_page_size=self.api_page_size,
             cull_default_servers=self.cull_default_servers,
             cull_named_servers=self.cull_named_servers,
+            cull_arbiter=cull_arbiter,
         )
         # schedule first cull immediately
         # because PeriodicCallback doesn't start until the end of the first interval
