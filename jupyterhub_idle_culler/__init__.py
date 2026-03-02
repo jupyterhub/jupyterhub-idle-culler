@@ -460,71 +460,59 @@ class IdleCuller(Application):
 
     api_page_size = Int(
         0,
-        help=dedent(
-            """
+        help=dedent("""
             Number of users to request per page,
             when using JupyterHub 2.0's paginated user list API.
             Default: user the server-side default configured page size.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     concurrency = Int(
         10,
-        help=dedent(
-            """
+        help=dedent("""
             Limit the number of concurrent requests made to the Hub.
 
             Deleting a lot of users at the same time can slow down the Hub,
             so limit the number of API requests we have outstanding at any given time.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     config_file = Unicode(
         "idle_culler_config.py",
-        help=dedent(
-            """
+        help=dedent("""
             Config file to load.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     cull_admin_users = Bool(
         True,
-        help=dedent(
-            """
+        help=dedent("""
             Whether admin users should be culled (only if --cull-users=true).
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     cull_default_servers = Bool(
         True,
-        help=dedent(
-            """
+        help=dedent("""
             Whether default servers should be culled (only if --cull-default-servers=true).
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     cull_every = Int(
         0,
-        help=dedent(
-            """
+        help=dedent("""
             The interval (in seconds) for checking for idle servers to cull.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
@@ -535,46 +523,38 @@ class IdleCuller(Application):
 
     cull_named_servers = Bool(
         True,
-        help=dedent(
-            """
+        help=dedent("""
             Whether named servers should be culled (only if --cull-named-servers=true).
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     cull_users = Bool(
         False,
-        help=dedent(
-            """
+        help=dedent("""
             Cull users in addition to servers.
 
             This is for use in temporary-user cases such as tmpnb.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     generate_config = Bool(
         False,
-        help=dedent(
-            """
+        help=dedent("""
             Generate default config file.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     internal_certs_location = Unicode(
         "internal-ssl",
-        help=dedent(
-            """
+        help=dedent("""
             The location of generated internal-ssl certificates (only needed with --ssl-enabled=true).
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
@@ -597,46 +577,38 @@ class IdleCuller(Application):
 
     max_age = Int(
         0,
-        help=dedent(
-            """
+        help=dedent("""
             The maximum age (in seconds) of servers that should be culled even if they are active.",
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     remove_named_servers = Bool(
         False,
-        help=dedent(
-            """
+        help=dedent("""
             Remove named servers in addition to stopping them.
 
             This is useful for a BinderHub that uses authentication and named servers.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     ssl_enabled = Bool(
         False,
-        help=dedent(
-            """
+        help=dedent("""
             Whether the Jupyter API endpoint has TLS enabled.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
 
     timeout = Int(
         600,
-        help=dedent(
-            """
+        help=dedent("""
             The idle timeout (in seconds).
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
@@ -644,11 +616,9 @@ class IdleCuller(Application):
     url = Unicode(
         os.environ.get("JUPYTERHUB_API_URL"),
         allow_none=True,
-        help=dedent(
-            """
+        help=dedent("""
             The JupyterHub API URL.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
