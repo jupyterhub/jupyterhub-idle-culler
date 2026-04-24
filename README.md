@@ -164,7 +164,6 @@ python3 -m jupyterhub_idle_culler [--timeout=900] [--url=http://localhost:8081/h
 
 1. JupyterHub's `last_activity` data about user servers is not updated with high
    frequency, so cull timeout should be greater than the sum of:
-
    - single-user websocket ping interval (default: 30 seconds)
    - `JupyterHub.last_activity_interval` (default: 5 minutes)
 
