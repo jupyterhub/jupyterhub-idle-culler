@@ -78,7 +78,7 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
-def default_cull_arbiter(inactive, inactive_limit, server):
+def default_cull_arbiter(*, inactive, inactive_limit, server, **kwargs):
     """Return True if time inactive exceeds limit, the classic cull check."""
     return inactive.total_seconds() >= inactive_limit
 
