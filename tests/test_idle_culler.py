@@ -54,7 +54,9 @@ async def test_custom_cull_arbiter(cull_idle, start_users, admin_request):
     assert await count_active_users(admin_request) == 0
     await start_users(3)
     assert await count_active_users(admin_request) == 3
-    await cull_idle(inactive_limit=300, logger=app_log, cull_arbiter=cull_arbiter_function)
+    await cull_idle(
+        inactive_limit=300, logger=app_log, cull_arbiter=cull_arbiter_function
+    )
     assert await count_active_users(admin_request) == 0
 
 
