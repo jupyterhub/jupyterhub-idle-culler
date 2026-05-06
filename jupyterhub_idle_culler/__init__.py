@@ -15,6 +15,7 @@ from textwrap import dedent
 from urllib.parse import quote
 
 import dateutil.parser
+from jupyterhub.utils import maybe_future
 from packaging.version import Version as V
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
@@ -235,9 +236,13 @@ async def cull_idle(
         is_default_server = server_name == ""
         is_named_server = server_name != ""
 
+        cull_result = await maybe_future(
+            cull_arbiter(inactive=inactive, inactive_limit=inactive_limit, server=server)
+        )
+
         should_cull = (
             inactive is not None
-            and cull_arbiter(inactive=inactive, inactive_limit=inactive_limit, server=server)
+            and cull_result
             and (
                 (cull_default_servers and is_default_server)
                 or (cull_named_servers and is_named_server)
@@ -528,6 +533,10 @@ class IdleCuller(Application):
                         return False
                     return inactive.total_seconds() >= inactive_limit
                 c.IdleCuller.cull_arbiter_hook = my_cull_arbiter
+
+            - 'inactive' is the server's time since last activity, a timedelta object
+            - 'inactive_limit' is the idle timeout limit, in seconds
+            - 'server' is the server being considered for culling
 
             This callable should return True if the server should be culled, and
             False if it should not.  In this example, servers with a profile
