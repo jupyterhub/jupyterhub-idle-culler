@@ -30,6 +30,14 @@ async def count_active_users(admin_request):
     return active_users
 
 
+def cull_arbiter_function(inactive, inactive_limit, server):
+    return True
+
+
+async def async_cull_arbiter_function(inactive, inactive_limit, server):
+    return False
+
+
 async def test_cull_idle(cull_idle, start_users, admin_request):
     assert await count_active_users(admin_request) == 0
     await start_users(3)
@@ -44,6 +52,29 @@ async def test_cull_idle(cull_idle, start_users, admin_request):
     ):
         await cull_idle(inactive_limit=300, logger=app_log)
     assert await count_active_users(admin_request) == 0
+
+
+async def test_custom_cull_arbiter(cull_idle, start_users, admin_request):
+    assert await count_active_users(admin_request) == 0
+    await start_users(3)
+    assert await count_active_users(admin_request) == 3
+    await cull_idle(
+        inactive_limit=300, logger=app_log, cull_arbiter=cull_arbiter_function
+    )
+    # time has not passed but the cull arbiter function returns true
+    # so, everyone culled
+    assert await count_active_users(admin_request) == 0
+
+
+async def test_async_custom_cull_arbiter(cull_idle, start_users, admin_request):
+    assert await count_active_users(admin_request) == 0
+    await start_users(3)
+    assert await count_active_users(admin_request) == 3
+    # test an async arbiter that just returns false to verify that no changes are made
+    await cull_idle(
+        inactive_limit=300, logger=app_log, cull_arbiter=async_cull_arbiter_function
+    )
+    assert await count_active_users(admin_request) == 3
 
 
 def test_help():
