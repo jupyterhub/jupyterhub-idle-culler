@@ -4,6 +4,7 @@ import asyncio
 import concurrent.futures
 import inspect
 
+
 def maybe_future(obj):
     """Return an asyncio Future
 

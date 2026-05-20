@@ -22,6 +22,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import LogFormatter
 from traitlets import Bool, Callable, Int, Unicode, default
 from traitlets.config import Application
+
 from .utils import maybe_future
 
 __version__ = "1.4.1.dev"
