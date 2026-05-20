@@ -35,7 +35,7 @@ def cull_arbiter_function(inactive, inactive_limit, server):
 
 
 async def async_cull_arbiter_function(inactive, inactive_limit, server):
-    return True
+    return False
 
 
 async def test_cull_idle(cull_idle, start_users, admin_request):
@@ -68,8 +68,9 @@ async def test_async_custom_cull_arbiter(cull_idle, start_users, admin_request):
     assert await count_active_users(admin_request) == 0
     await start_users(3)
     assert await count_active_users(admin_request) == 3
+    # test an async arbiter that just returns false to verify that no changes are made
     await cull_idle(inactive_limit=300, logger=app_log, cull_arbiter=async_cull_arbiter_function)
-    assert await count_active_users(admin_request) == 0
+    assert await count_active_users(admin_request) == 3
 
 
 def test_help():

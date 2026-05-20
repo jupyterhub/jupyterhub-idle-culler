@@ -15,7 +15,6 @@ from textwrap import dedent
 from urllib.parse import quote
 
 import dateutil.parser
-from jupyterhub.utils import maybe_future
 from packaging.version import Version as V
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
@@ -23,6 +22,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.log import LogFormatter
 from traitlets import Bool, Callable, Int, Unicode, default
 from traitlets.config import Application
+from .utils import maybe_future
 
 __version__ = "1.4.1.dev"
 
@@ -516,8 +516,7 @@ class IdleCuller(Application):
     )
 
     cull_arbiter_hook = Callable(
-        None,
-        allow_none=True,
+        default_cull_arbiter,
         help=dedent(
             """
             Enable custom culling logic.
@@ -718,7 +717,7 @@ class IdleCuller(Application):
 
         api_token = os.environ["JUPYTERHUB_API_TOKEN"]
 
-        cull_arbiter = self.cull_arbiter_hook or default_cull_arbiter
+        cull_arbiter = self.cull_arbiter_hook
 
         try:
             AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
