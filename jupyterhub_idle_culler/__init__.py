@@ -237,7 +237,9 @@ async def cull_idle(
         is_named_server = server_name != ""
 
         cull_result = await maybe_future(
-            cull_arbiter(inactive=inactive, inactive_limit=inactive_limit, server=server)
+            cull_arbiter(
+                inactive=inactive, inactive_limit=inactive_limit, server=server
+            )
         )
 
         should_cull = (
@@ -517,8 +519,7 @@ class IdleCuller(Application):
 
     cull_arbiter_hook = Callable(
         default_cull_arbiter,
-        help=dedent(
-            """
+        help=dedent("""
             Enable custom culling logic.
 
             By default, the idle culler compares a server's time since last
@@ -541,8 +542,7 @@ class IdleCuller(Application):
             False if it should not.  In this example, servers with a profile
             name of "unlimited" are never culled, but all others are subject to
             the default time limit logic.
-            """
-        ).strip(),
+            """).strip(),
     ).tag(
         config=True,
     )
