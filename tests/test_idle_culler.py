@@ -14,13 +14,6 @@ async def test_alive(hub_url, hub, admin_request):
     print(info)
 
 
-async def start_users(admin_request, n):
-    for i in range(n):
-        # start server
-        await admin_request("/users/test-{n}/server", method="POST")
-        await admin_request("/users/test-{n}/server/progress", method="GET")
-
-
 async def count_active_users(admin_request):
     users = await admin_request("/users")
     active_users = 0
