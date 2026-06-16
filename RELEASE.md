@@ -16,16 +16,16 @@ Note that `github-activity` has an external dependency `gh` which may be
 installed via conda through the conda-forge channel or through other package
 managers.
 
-   ```shell
-   pip install github-activity
+```shell
+pip install github-activity
 
-   github-activity --heading-level=3 jupyterhub/jupyterhub-idle-culler
-   ```
+github-activity --heading-level=3 jupyterhub/jupyterhub-idle-culler
+```
 
 1. Checkout main and make sure it is up to date. In the below example, this
-repository is named `origin`; if you have this remote repo under another name
-like `upstream`, make sure to use the correct remote name when running
-`git fetch` and `git reset`.
+   repository is named `origin`; if you have this remote repo under another name
+   like `upstream`, make sure to use the correct remote name when running
+   `git fetch` and `git reset`.
 
    ```shell
    git checkout main
@@ -34,7 +34,7 @@ like `upstream`, make sure to use the correct remote name when running
    ```
 
 1. Update the version (of the form `X.Y.Z`), make commits, and push a git tag
-with `tbump`.
+   with `tbump`.
 
    ```shell
    pip install tbump
