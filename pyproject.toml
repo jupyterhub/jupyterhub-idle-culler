@@ -97,7 +97,7 @@ asyncio_mode = "auto"
 github_url = "https://github.com/jupyterhub/jupyterhub-idle-culler"
 
 [tool.tbump.version]
-current = "1.4.1.dev"
+current = "2.0.0"
 regex = '''
     (?P<major>\d+)
     \.

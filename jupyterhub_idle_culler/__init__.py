@@ -25,7 +25,7 @@ from traitlets.config import Application
 
 from .utils import maybe_future
 
-__version__ = "1.4.1.dev"
+__version__ = "2.0.0"
 
 STATE_FILTER_MIN_VERSION = V("1.3.0")
 
