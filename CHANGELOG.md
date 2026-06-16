@@ -3,6 +3,33 @@
 This changelog is maintained manually with assistance of
 [`github-activity`](https://github.com/executablebooks/github-activity).
 
+## 2.0
+
+### 2.0.0 - 2026-06-16
+
+([full changelog](https://github.com/jupyterhub/jupyterhub-idle-culler/compare/1.4.0...2.0.0))
+
+#### API and Breaking Changes
+
+- Replace tornado options with traitlets [#83](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/83) ([@rcthomas](https://github.com/rcthomas), [@ClaytonAstrom](https://github.com/ClaytonAstrom), [@agoose77](https://github.com/agoose77), [@jrdnbradford](https://github.com/jrdnbradford), [@manics](https://github.com/manics), [@yuvipanda](https://github.com/yuvipanda))
+
+#### New features added
+
+- Configurable cull arbitration - continuation of #90 [#102](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/102) ([@kellyrowland](https://github.com/kellyrowland), [@jnywong](https://github.com/jnywong), [@rcthomas](https://github.com/rcthomas), [@yuvipanda](https://github.com/yuvipanda))
+
+#### Maintenance and upkeep improvements
+
+- change release from twine to pypi trusted publishing [#104](https://github.com/jupyterhub/jupyterhub-idle-culler/pull/104) ([@kellyrowland](https://github.com/kellyrowland), [@jnywong](https://github.com/jnywong), [@minrk](https://github.com/minrk))
+
+#### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterhub/jupyterhub-idle-culler/graphs/contributors?from=2024-09-17&to=2026-06-16&type=c))
+
+@agoose77 ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aagoose77+updated%3A2024-09-17..2026-06-16&type=Issues)) | @ClaytonAstrom ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AClaytonAstrom+updated%3A2024-09-17..2026-06-16&type=Issues)) | @consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2024-09-17..2026-06-16&type=Issues)) | @jnywong ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ajnywong+updated%3A2024-09-17..2026-06-16&type=Issues)) | @jrdnbradford ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ajrdnbradford+updated%3A2024-09-17..2026-06-16&type=Issues)) | @kellyrowland ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Akellyrowland+updated%3A2024-09-17..2026-06-16&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Amanics+updated%3A2024-09-17..2026-06-16&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2024-09-17..2026-06-16&type=Issues)) | @rcthomas ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Arcthomas+updated%3A2024-09-17..2026-06-16&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2024-09-17..2026-06-16&type=Issues))
+
 ## 1.4
 
 ### 1.4.0 - 2024-09-17
