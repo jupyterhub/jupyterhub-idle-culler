@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 import json
 import os
@@ -119,26 +118,26 @@ def admin_request(hub, hub_url, admin_token):
 
 
 @pytest.fixture
-def start_users(admin_request, request):
+async def start_users(admin_request):
     """Returns a function to start a number of users"""
 
-    def stop_user(i):
-        asyncio.get_event_loop().run_until_complete(
-            admin_request(f"/users/test-{i}/server", method="DELETE")
-        )
+    started_users = []
 
     async def start_users(n):
         for i in range(n):
             # start servers
             await admin_request(f"/users/test-{i}/server", body="", method="POST")
-            request.addfinalizer(partial(stop_user, i))
+            started_users.append(i)
         for i in range(n):
             # wait for servers to be ready via progress API
             await admin_request(
                 f"/users/test-{i}/server/progress", parse_json=False, method="GET"
             )
 
-    return start_users
+    yield start_users
+    # cleanup started users
+    for i in started_users:
+        await admin_request(f"/users/test-{i}/server", method="DELETE")
 
 
 @pytest.fixture
