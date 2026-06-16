@@ -30,8 +30,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 
 @agoose77 ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aagoose77+updated%3A2024-09-17..2026-06-16&type=Issues)) | @ClaytonAstrom ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AClaytonAstrom+updated%3A2024-09-17..2026-06-16&type=Issues)) | @consideRatio ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3AconsideRatio+updated%3A2024-09-17..2026-06-16&type=Issues)) | @jnywong ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ajnywong+updated%3A2024-09-17..2026-06-16&type=Issues)) | @jrdnbradford ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ajrdnbradford+updated%3A2024-09-17..2026-06-16&type=Issues)) | @kellyrowland ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Akellyrowland+updated%3A2024-09-17..2026-06-16&type=Issues)) | @manics ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Amanics+updated%3A2024-09-17..2026-06-16&type=Issues)) | @minrk ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Aminrk+updated%3A2024-09-17..2026-06-16&type=Issues)) | @rcthomas ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Arcthomas+updated%3A2024-09-17..2026-06-16&type=Issues)) | @yuvipanda ([activity](https://github.com/search?q=repo%3Ajupyterhub%2Fjupyterhub-idle-culler+involves%3Ayuvipanda+updated%3A2024-09-17..2026-06-16&type=Issues))
 
-
-
 ## 1.4
 
 ### 1.4.0 - 2024-09-17
