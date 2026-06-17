@@ -10,15 +10,22 @@ These are instructions on how to make a release.
 ## Steps to make a release
 
 1. Create a PR updating `CHANGELOG.md` with [github-activity] and continue only
-   when its merged.
+   when it's merged.
+
+   Note that `github-activity` has an external dependency `gh` which may be
+   installed via conda through the conda-forge channel or through other package
+   managers.
 
    ```shell
    pip install github-activity
 
-   github-activity --heading-level=3 jupyterhub/jupyterhub-idle-culler
+   github-activity --heading-level=3 --since=$LAST_TAG jupyterhub/jupyterhub-idle-culler
    ```
 
-1. Checkout main and make sure it is up to date.
+1. Checkout main and make sure it is up to date. In the below example, this
+   repository is named `origin`; if you have this remote repo under another name
+   like `upstream`, make sure to use the correct remote name when running
+   `git fetch` and `git reset`.
 
    ```shell
    git checkout main
@@ -26,7 +33,17 @@ These are instructions on how to make a release.
    git reset --hard origin/main
    ```
 
-1. Update the version, make commits, and push a git tag with `tbump`.
+   If you have this remote repo named, e.g., `upstream` and not `origin`, you
+   will also need to run
+
+   ```shell
+   git branch --set-upstream-to upstream/main main
+   ```
+
+   for the following `tbump` workflow to succeed.
+
+1. Update the version (of the form `X.Y.Z`), make commits, and push a git tag
+   with `tbump`.
 
    ```shell
    pip install tbump
