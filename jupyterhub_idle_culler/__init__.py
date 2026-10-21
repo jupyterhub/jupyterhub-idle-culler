@@ -674,7 +674,23 @@ class IdleCuller(Application):
         "generate-config": (
             {"IdleCuller": {"generate_config": True}},
             generate_config.help,
-        )
+        ),
+        # flags allow setting booleans to true
+        # with `--cull-users` instead of `--cull-users=true`
+        # only needed for bools with default=False.
+        # need these for backward-compatibility with 1.x.
+        "cull-users": (
+            {"IdleCuller": {"cull_users": True}},
+            cull_users.help,
+        ),
+        "remove-named-servers": (
+            {"IdleCuller": {"remove_named_servers": True}},
+            remove_named_servers.help,
+        ),
+        "ssl-enabled": (
+            {"IdleCuller": {"ssl_enabled": True}},
+            ssl_enabled.help,
+        ),
     }
 
     def start(self):
