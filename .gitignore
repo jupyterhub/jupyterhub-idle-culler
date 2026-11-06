@@ -1,4 +1,5 @@
 .vscode
+.DS_Store
 
 
 # Python.gitignore from https://github.com/github/gitignore/blob/HEAD/Python.gitignore

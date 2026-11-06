@@ -14,8 +14,8 @@ build-backend = "hatchling.build"
 name = "jupyterhub-idle-culler"
 description = "JupyterHub Python repository template"
 readme = "README.md"
-requires-python = ">=3.7"
-license = {file = "COPYING.md"}
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
 keywords = ["jupyterhub"]
 authors = [
     {name = "Jupyter Contributors", email = "jupyter@googlegroups.com"},
