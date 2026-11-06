@@ -15,7 +15,6 @@ from textwrap import dedent
 from urllib.parse import quote
 
 import dateutil.parser
-from packaging.version import Version as V
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.httputil import url_concat
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -26,8 +25,6 @@ from traitlets.config import Application
 from .utils import maybe_future
 
 __version__ = "2.1.0.dev"
-
-STATE_FILTER_MIN_VERSION = V("1.3.0")
 
 
 def parse_date(date_string):
@@ -176,14 +173,7 @@ async def cull_idle(
 
         logger.debug(f"Fetched {item_count} items from {url} in {page_no} pages")
 
-    # Starting with jupyterhub 1.3.0 the users can be filtered in the server
-    # using the `state` filter parameter. "ready" means all users who have any
-    # ready servers (running, not pending).
     auth_header = {"Authorization": f"token {api_token}"}
-    resp = await fetch(HTTPRequest(url=f"{url}/", headers=auth_header))
-
-    resp_model = json.loads(resp.body.decode("utf8", "replace"))
-    state_filter = V(resp_model["version"]) >= STATE_FILTER_MIN_VERSION
 
     now = utcnow()
 
@@ -418,7 +408,7 @@ async def cull_idle(
     # are inactive, so if we're also culling users get the set of users which
     # are inactive and see if they should be culled as well.
     users_url = f"{url}/users"
-    if state_filter and cull_users:
+    if cull_users:
         inactive_params = {"state": "inactive"}
         inactive_params.update(params)
         req = HTTPRequest(url_concat(users_url, inactive_params), headers=auth_header)
@@ -428,8 +418,8 @@ async def cull_idle(
             futures.append((user["name"], handle_user(user)))
         logger.debug(f"Got {n_idle} users with inactive servers")
 
-    if state_filter:
-        params["state"] = "ready"
+    # exclude stopped and pending servers
+    params["state"] = "ready"
 
     req = HTTPRequest(
         url=url_concat(users_url, params),
@@ -441,10 +431,7 @@ async def cull_idle(
         n_users += 1
         futures.append((user["name"], handle_user(user)))
 
-    if state_filter:
-        logger.debug(f"Got {n_users} users with ready servers")
-    else:
-        logger.debug(f"Got {n_users} users")
+    logger.debug(f"Got {n_users} users with ready servers")
 
     for name, f in futures:
         try:
